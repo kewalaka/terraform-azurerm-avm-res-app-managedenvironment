@@ -2,6 +2,13 @@ data "azurerm_resource_group" "parent" {
   name = var.resource_group_name
 }
 
+data "azapi_resource_action" "shared_keys" {
+  type                   = "Microsoft.OperationalInsights/workspaces@2020-08-01"
+  resource_id            = var.log_analytics_workspace_resource_id
+  action                 = "sharedKeys"
+  response_export_values = ["*"]
+}
+
 resource "azapi_resource" "this_environment" {
   type = "Microsoft.App/managedEnvironments@2023-05-01"
   body = jsonencode({
@@ -9,8 +16,8 @@ resource "azapi_resource" "this_environment" {
       appLogsConfiguration = {
         "destination" = var.log_analytics_workspace_destination
         logAnalyticsConfiguration = var.log_analytics_workspace_destination == "log-analytics" ? {
-          "customerId" = var.log_analytics_workspace_customer_id
-          "sharedKey"  = var.log_analytics_workspace_primary_shared_key
+          "customerId" = var.log_analytics_workspace_resource_id
+          "sharedKey"  = jsondecode(data.azapi_resource_action.shared_keys.output).primarySharedKey
         } : null
       }
       customDomainConfiguration = {

@@ -40,6 +40,7 @@ The following resources are used by this module:
 - [azurerm_resource_group_template_deployment.telemetry](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group_template_deployment) (resource)
 - [azurerm_role_assignment.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) (resource)
 - [random_id.telem](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/id) (resource)
+- [azapi_resource_action.shared_keys](https://registry.terraform.io/providers/Azure/azapi/latest/docs/data-sources/resource_action) (data source)
 - [azurerm_resource_group.parent](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/resource_group) (data source)
 
 <!-- markdownlint-disable MD013 -->
@@ -237,14 +238,6 @@ object({
 
 Default: `{}`
 
-### <a name="input_log_analytics_workspace_customer_id"></a> [log\_analytics\_workspace\_customer\_id](#input\_log\_analytics\_workspace\_customer\_id)
-
-Description: The ID for the Log Analytics Workspace to link this Container Apps Managed Environment to.
-
-Type: `string`
-
-Default: `null`
-
 ### <a name="input_log_analytics_workspace_destination"></a> [log\_analytics\_workspace\_destination](#input\_log\_analytics\_workspace\_destination)
 
 Description: Destination for Log Analytics (options: 'log-analytics', 'azuremonitor', 'none').
@@ -253,9 +246,9 @@ Type: `string`
 
 Default: `"log-analytics"`
 
-### <a name="input_log_analytics_workspace_primary_shared_key"></a> [log\_analytics\_workspace\_primary\_shared\_key](#input\_log\_analytics\_workspace\_primary\_shared\_key)
+### <a name="input_log_analytics_workspace_resource_id"></a> [log\_analytics\_workspace\_resource\_id](#input\_log\_analytics\_workspace\_resource\_id)
 
-Description: Primary shared key for Log Analytics.
+Description: The resource ID for the Log Analytics Workspace to link this Container Apps Managed Environment to.
 
 Type: `string`
 

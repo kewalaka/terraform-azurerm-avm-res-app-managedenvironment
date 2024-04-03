@@ -127,10 +127,10 @@ variable "lock" {
   }
 }
 
-variable "log_analytics_workspace_customer_id" {
+variable "log_analytics_workspace_resource_id" {
   type        = string
   default     = null
-  description = "The ID for the Log Analytics Workspace to link this Container Apps Managed Environment to."
+  description = "The resource ID for the Log Analytics Workspace to link this Container Apps Managed Environment to."
 }
 
 variable "log_analytics_workspace_destination" {
@@ -142,12 +142,6 @@ variable "log_analytics_workspace_destination" {
     condition     = contains(["log-analytics", "azure-monitor", "none"], var.log_analytics_workspace_destination)
     error_message = "Invalid value for log_analytics_workspace_destination. Valid options are 'log-analytics', 'azure-monitor', or 'none'."
   }
-}
-
-variable "log_analytics_workspace_primary_shared_key" {
-  type        = string
-  default     = null
-  description = "Primary shared key for Log Analytics."
 }
 
 variable "peer_authentication_enabled" {
