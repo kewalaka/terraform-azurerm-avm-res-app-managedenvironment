@@ -9,7 +9,7 @@ output "id" {
 }
 
 output "name" {
-  description = "The name of the resource"
+  description = "The name of the container apps management environment resource."
   value       = azapi_resource.this_environment.name
 }
 
@@ -46,7 +46,7 @@ output "resource" {
 }
 
 output "resource_id" {
-  description = "The ID of the container app management environment resource."
+  description = "The ID of the container apps management environment resource."
   value       = azapi_resource.this_environment.id
 }
 

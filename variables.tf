@@ -131,12 +131,6 @@ DESCRIPTION
   }
 }
 
-variable "log_analytics_workspace_customer_id" {
-  type        = string
-  default     = null
-  description = "The ID for the Log Analytics Workspace to link this Container Apps Managed Environment to."
-}
-
 variable "log_analytics_workspace_destination" {
   type        = string
   default     = "log-analytics"
@@ -148,10 +142,10 @@ variable "log_analytics_workspace_destination" {
   }
 }
 
-variable "log_analytics_workspace_primary_shared_key" {
+variable "log_analytics_workspace_resource_id" {
   type        = string
   default     = null
-  description = "Primary shared key for Log Analytics."
+  description = "The resource ID for the Log Analytics Workspace to link this Container Apps Managed Environment to."
 }
 
 variable "peer_authentication_enabled" {
@@ -173,7 +167,7 @@ variable "role_assignments" {
   }))
   default     = {}
   description = <<DESCRIPTION
-A map of role assignments to create on the container app environment. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
+A map of role assignments to create on the container apps environment. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
 
 - `role_definition_id_or_name` - The ID or name of the role definition to assign to the principal.
 - `principal_id` - The ID of the principal to assign the role to.
