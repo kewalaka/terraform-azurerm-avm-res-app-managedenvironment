@@ -55,6 +55,7 @@ locals {
       share_name   = sv.body.properties.azureFile.shareName
     }
   }
+  subscription_id = coalesce(var.subscription_id, data.azurerm_client_config.this.subscription_id)
   # this is used to mimic the behaviour of the azurerm provider
   workload_profile_consumption_enabled = contains([
     for wp in var.workload_profile :

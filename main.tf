@@ -11,10 +11,11 @@ resource "azapi_resource" "this_environment" {
           "sharedKey"  = var.log_analytics_workspace_primary_shared_key
         } : null
       }
-      customDomainConfiguration = {
+      customDomainConfiguration = var.custom_domain_certificate_blob_base64 != null ? {
         "certificatePassword" = var.custom_domain_certificate_password
+        "certificateValue"    = var.custom_domain_certificate_blob_base64
         "dnsSuffix"           = var.custom_domain_dns_suffix
-      }
+      } : null
       daprAIInstrumentationKey = var.dapr_application_insights_connection_string
       peerAuthentication = {
         "mtls" : {
@@ -45,7 +46,7 @@ resource "azapi_resource" "this_environment" {
   }
   location  = var.location
   name      = var.name
-  parent_id = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${var.resource_group_name}"
+  parent_id = "/subscriptions/${local.subscription_id}/resourceGroups/${var.resource_group_name}"
   response_export_values = [
     "properties.customDomainConfiguration",
     "properties.daprAIInstrumentationKey",
@@ -68,6 +69,24 @@ resource "azapi_resource" "this_environment" {
       read   = timeouts.value.read
     }
   }
+}
+
+# this is the alternative way to use a custom domain, which relies on domain verification.
+resource "azapi_update_resource" "custom_domain" {
+  count = var.custom_domain_dns_suffix != null && var.custom_domain_certificate_blob_base64 == null ? 1 : 0
+
+  type = "Microsoft.App/managedEnvironments@2024-03-01"
+
+  resource_id = azapi_resource.this_environment.id
+  body = {
+    properties = {
+      customDomainConfiguration = {
+        dnsSuffix = var.custom_domain_dns_suffix
+      }
+    }
+  }
+
+  depends_on = [azapi_resource.this_environment.custom_domain_verification_id]
 }
 
 resource "azurerm_management_lock" "this" {

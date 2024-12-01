@@ -16,10 +16,16 @@ variable "resource_group_name" {
   nullable    = false
 }
 
+variable "custom_domain_certificate_blob_base64" {
+  type        = string
+  default     = null
+  description = "Certificate bundle in base64 encoded PFX or PEM format."
+}
+
 variable "custom_domain_certificate_password" {
   type        = string
   default     = null
-  description = "Certificate password for custom domain."
+  description = "Certificate password if passing a certificate via `var.custom_domain_certificate_blob_base64`."
 }
 
 variable "custom_domain_dns_suffix" {
@@ -187,6 +193,12 @@ A map of role assignments to create on the container app environment. The map ke
 > Note: only set `skip_service_principal_aad_check` to true if you are assigning a role to a service principal.
 DESCRIPTION
   nullable    = false
+}
+
+variable "subscription_id" {
+  type        = string
+  default     = null
+  description = "(Optional) Subscription ID passed in by an external process.  If this is not supplied, then the configuration either needs to include the subscription ID, or needs to be supplied properties to create the subscription."
 }
 
 variable "tags" {
