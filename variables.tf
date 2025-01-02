@@ -134,7 +134,19 @@ DESCRIPTION
 variable "log_analytics_workspace_customer_id" {
   type        = string
   default     = null
-  description = "The ID for the Log Analytics Workspace to link this Container Apps Managed Environment to."
+  description = <<DESCRIPTION
+The ID for the Log Analytics Workspace to link this Container Apps Managed Environment to.
+
+If this property is set, then `log_analytics_workspace_primary_shared_key` property must also be set.
+
+As an alternative, Log Analytics can be configured using the `log_analytics_workspace_resource_id` property, in which case this property should be left unset.
+
+DESCRIPTION
+
+  validation {
+    condition     = log_analytics_workspace_customer_id == null || can(regex("^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$", var.log_analytics_workspace_customer_id))
+    error_message = "Invalid value for log_analytics_workspace_customer_id. The valid form for a Log Analytics Workspace customer/workspace ID is a GUIDs."
+  }
 }
 
 variable "log_analytics_workspace_destination" {
@@ -151,7 +163,24 @@ variable "log_analytics_workspace_destination" {
 variable "log_analytics_workspace_primary_shared_key" {
   type        = string
   default     = null
-  description = "Primary shared key for Log Analytics."
+  description = <<DESCRIPTION
+Primary shared key for Log Analytics.
+
+If this property is set, then `log_analytics_workspace_customer_id` property must also be set.
+
+This is not required if `log_analytics_workspace_resource_id` is set.
+
+DESCRIPTION
+}
+
+variable "log_analytics_workspace_resource_id" {
+  type        = string
+  default     = null
+  description = "The resource ID for the Log Analytics Workspace to link this Container Apps Managed Environment to."
+  validation {
+    condition     = log_analytics_workspace_resource_id == null || can(regex("^/subscriptions/[^/]+/resourceGroups/[^/]+/providers/Microsoft.OperationalInsights/workspaces/[^/]+$", var.log_analytics_workspace_resource_id))
+    error_message = "Invalid value for log_analytics_workspace_resource_id. Must be a valid Log Analytics Workspace resource ID."
+  }
 }
 
 variable "peer_authentication_enabled" {

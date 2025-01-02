@@ -1,5 +1,12 @@
 data "azurerm_client_config" "current" {}
 
+data "azapi_resource_action" "shared_keys" {
+  type                   = "Microsoft.OperationalInsights/workspaces@2023-09-01"
+  action                 = "sharedKeys"
+  resource_id            = var.log_analytics_workspace_resource_id
+  response_export_values = ["primarySharedKey"]
+}
+
 resource "azapi_resource" "this_environment" {
   type = "Microsoft.App/managedEnvironments@2024-03-01"
   body = {
