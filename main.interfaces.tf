@@ -1,11 +1,12 @@
 # This file handles the AVM common interfaces (locks, role assignments, diagnostic settings)
 # using the avm-utl-interfaces utility module v1.0 prep branch
 # 
-# NOTE: Using feat/prepv1 branch to test the new drift-free diagnostic settings implementation
-# See: https://github.com/Azure/terraform-azure-avm-utl-interfaces/pull/29
+# NOTE: Using feat/prepv1 branch from kewalaka fork to test the bug fix before PR
+# Original issue: missing 'type' field in role_assignments locals
+# Fork: https://github.com/kewalaka/terraform-azure-avm-utl-interfaces-1/tree/feat/prepv1
 
 module "avm_interfaces" {
-  source = "git::https://github.com/Azure/terraform-azure-avm-utl-interfaces.git?ref=feat/prepv1"
+  source = "git::https://github.com/kewalaka/terraform-azure-avm-utl-interfaces-1.git?ref=feat/prepv1"
 
   diagnostic_settings  = var.diagnostic_settings
   enable_telemetry     = var.enable_telemetry
