@@ -1,6 +1,6 @@
 # This file handles the AVM common interfaces (locks, role assignments, diagnostic settings)
 # using the avm-utl-interfaces utility module v1.0 prep branch
-# 
+#
 # NOTE: Using feat/prepv1 branch from kewalaka fork to test the bug fix before PR
 # Original issue: missing 'type' field in role_assignments locals
 # Fork: https://github.com/kewalaka/terraform-azure-avm-utl-interfaces-1/tree/feat/prepv1
