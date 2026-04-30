@@ -3,6 +3,11 @@ resource "azapi_resource" "this" {
   name      = var.name
   parent_id = var.parent_id
   body      = local.resource_body
+  replace_triggers_refs = [
+    "properties.azureFile.accountName",
+    "properties.azureFile.shareName",
+    "properties.nfsAzureFile.server",
+  ]
   sensitive_body = {
     properties = {
       azureFile = var.azure_file == null ? null : {

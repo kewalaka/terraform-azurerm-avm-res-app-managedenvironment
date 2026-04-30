@@ -50,10 +50,10 @@ The following child resource submodules are now available:
 | Module | API Version | Notes |
 |---|---|---|
 | `modules/dapr_subscriptions` | `2025-10-02-preview` | Preview API |
-| `modules/maintenance_configurations` | `2026-01-01` | |
+| `modules/maintenance_configurations` | `2025-07-01` | |
 | `modules/dot_net_components` | `2025-10-02-preview` | Preview API |
-| `modules/java_components` | `2026-01-01` | |
-| `modules/http_route_configs` | `2026-01-01` | |
+| `modules/java_components` | `2025-07-01` | |
+| `modules/http_route_configs` | `2025-07-01` | |
 
 ---
 
@@ -222,4 +222,4 @@ The following variables are removed; use `app_logs_configuration` instead:
 
 ## API Version Change
 
-The main resource API version has been upgraded from `2025-02-02-preview` to `2026-01-01` (GA).
+The main resource API version has been upgraded from `2025-02-02-preview` to `2025-07-01` (GA).

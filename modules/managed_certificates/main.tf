@@ -4,6 +4,10 @@ resource "azapi_resource" "this" {
   parent_id = var.parent_id
   location  = var.location
   body      = local.resource_body
+  replace_triggers_refs = [
+    "properties.subjectName",
+    "properties.domainControlValidation",
+  ]
   tags      = var.tags
   response_export_values = [
     "apiVersion",

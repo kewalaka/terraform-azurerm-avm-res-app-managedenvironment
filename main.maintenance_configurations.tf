@@ -4,6 +4,6 @@ module "maintenance_configurations" {
   enable_telemetry  = each.value.enable_telemetry
   location          = each.value.location
   name              = each.value.name
-  parent_id         = azapi_resource.this.id
+  parent_id         = azapi_resource.this_environment.id
   scheduled_entries = each.value.scheduled_entries
 }

@@ -1,9 +1,16 @@
-resource "azapi_resource" "this" {
+resource "azapi_resource" "this_environment" {
   location  = var.location
   name      = var.name
   parent_id = local.parent_id
   type      = "Microsoft.App/managedEnvironments@2025-07-01"
   body      = local.resource_body
+  replace_triggers_refs = [
+    "kind",
+    "properties.vnetConfiguration.infrastructureSubnetId",
+    "properties.vnetConfiguration.internal",
+    "properties.zoneRedundant",
+    "properties.workloadProfiles[*].workloadProfileType",
+  ]
   create_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
   delete_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
   read_headers   = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
@@ -40,10 +47,10 @@ resource "azapi_resource" "this" {
           sharedKey = local.log_analytics_key
         }
       }
-      customDomainConfiguration = var.custom_domain_configuration == null ? null : {
-        certificatePassword = var.certificate_password
+      customDomainConfiguration = local.effective_custom_domain_configuration == null ? null : {
+        certificatePassword = local.effective_certificate_password
       }
-      daprAIConnectionString   = var.dapr_ai_connection_string
+      daprAIConnectionString   = local.effective_dapr_ai_connection_string
       daprAIInstrumentationKey = var.dapr_ai_instrumentation_key
     }
   }
@@ -81,7 +88,7 @@ resource "azurerm_management_lock" "this" {
 
   lock_level = var.lock.kind
   name       = coalesce(var.lock.name, "lock-${var.lock.kind}")
-  scope      = azapi_resource.this.id
+  scope      = azapi_resource.this_environment.id
   notes      = var.lock.kind == "CanNotDelete" ? "Cannot delete the resource or its child resources." : "Cannot delete or modify the resource or its child resources."
 }
 
@@ -89,7 +96,7 @@ resource "azurerm_role_assignment" "this" {
   for_each = var.role_assignments
 
   principal_id                           = each.value.principal_id
-  scope                                  = azapi_resource.this.id
+  scope                                  = azapi_resource.this_environment.id
   condition                              = each.value.condition
   condition_version                      = each.value.condition_version
   delegated_managed_identity_resource_id = each.value.delegated_managed_identity_resource_id
@@ -102,7 +109,7 @@ resource "azurerm_monitor_diagnostic_setting" "this" {
   for_each = var.diagnostic_settings
 
   name                           = each.value.name != null ? each.value.name : "diag-${var.name}"
-  target_resource_id             = azapi_resource.this.id
+  target_resource_id             = azapi_resource.this_environment.id
   eventhub_authorization_rule_id = each.value.event_hub_authorization_rule_resource_id
   eventhub_name                  = each.value.event_hub_name
   log_analytics_destination_type = each.value.log_analytics_destination_type

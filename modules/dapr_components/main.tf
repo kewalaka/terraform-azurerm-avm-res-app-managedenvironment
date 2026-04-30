@@ -3,6 +3,7 @@ resource "azapi_resource" "this" {
   name      = var.name
   parent_id = var.parent_id
   body      = local.resource_body
+  replace_triggers_refs = ["properties.componentType"]
   sensitive_body = {
     properties = {
       secrets = var.secrets

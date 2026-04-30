@@ -7,7 +7,7 @@ module "java_components" {
   ingress          = each.value.ingress
   location         = each.value.location
   name             = each.value.name
-  parent_id        = azapi_resource.this.id
+  parent_id        = azapi_resource.this_environment.id
   scale            = each.value.scale
   service_binds    = each.value.service_binds
 }

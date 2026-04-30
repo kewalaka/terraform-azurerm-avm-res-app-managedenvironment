@@ -3,6 +3,7 @@ resource "azapi_resource" "this" {
   name      = var.name
   parent_id = var.parent_id
   body      = local.resource_body
+  replace_triggers_refs = ["properties.componentType"]
   # Disabled because the body contains a discriminated object type whose
   # discriminator property value is unknown at validate time.
   schema_validation_enabled = false

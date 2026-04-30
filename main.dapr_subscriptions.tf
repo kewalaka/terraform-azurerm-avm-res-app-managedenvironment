@@ -7,7 +7,7 @@ module "dapr_subscriptions" {
   location          = each.value.location
   metadata          = each.value.metadata
   name              = each.value.name
-  parent_id         = azapi_resource.this.id
+  parent_id         = azapi_resource.this_environment.id
   pubsub_name       = each.value.pubsub_name
   routes            = each.value.routes
   scopes            = each.value.scopes

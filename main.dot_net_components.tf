@@ -6,6 +6,6 @@ module "dot_net_components" {
   enable_telemetry = each.value.enable_telemetry
   location         = each.value.location
   name             = each.value.name
-  parent_id        = azapi_resource.this.id
+  parent_id        = azapi_resource.this_environment.id
   service_binds    = each.value.service_binds
 }

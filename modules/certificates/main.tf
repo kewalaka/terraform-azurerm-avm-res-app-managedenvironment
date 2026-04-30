@@ -4,6 +4,10 @@ resource "azapi_resource" "this" {
   parent_id = var.parent_id
   location  = var.location
   body      = local.resource_body
+  replace_triggers_refs = [
+    "properties.certificateKeyVaultProperties.keyVaultUrl",
+    "properties.certificateKeyVaultProperties.identity",
+  ]
   sensitive_body = {
     properties = {
       password = var.password

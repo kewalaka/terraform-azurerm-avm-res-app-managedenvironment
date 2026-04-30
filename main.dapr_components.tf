@@ -9,7 +9,7 @@ module "dapr_components" {
   location                = each.value.location
   metadata                = each.value.metadata
   name                    = each.value.name
-  parent_id               = azapi_resource.this.id
+  parent_id               = azapi_resource.this_environment.id
   scopes                  = each.value.scopes
   secret_store_component  = each.value.secret_store_component
   secrets                 = each.value.secrets

@@ -8,5 +8,5 @@ module "storages" {
   location            = each.value.location
   name                = each.value.name
   nfs_azure_file      = each.value.nfs_azure_file
-  parent_id           = azapi_resource.this.id
+  parent_id           = azapi_resource.this_environment.id
 }

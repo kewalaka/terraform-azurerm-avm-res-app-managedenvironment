@@ -5,7 +5,7 @@ module "managed_certificates" {
   enable_telemetry          = each.value.enable_telemetry
   location                  = each.value.location
   name                      = each.value.name
-  parent_id                 = azapi_resource.this.id
+  parent_id                 = azapi_resource.this_environment.id
   subject_name              = each.value.subject_name
   tags                      = each.value.tags
 }

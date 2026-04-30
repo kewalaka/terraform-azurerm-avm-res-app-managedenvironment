@@ -5,6 +5,6 @@ module "http_route_configs" {
   enable_telemetry = each.value.enable_telemetry
   location         = each.value.location
   name             = each.value.name
-  parent_id        = azapi_resource.this.id
+  parent_id        = azapi_resource.this_environment.id
   rules            = each.value.rules
 }
