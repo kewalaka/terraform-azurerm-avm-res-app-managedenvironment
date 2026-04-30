@@ -357,7 +357,7 @@ This is in addition to the default Consumption Plan workload profile.
  - `maximum_count` - (Optional) The maximum number of instances of workload profile that can be deployed in the Container App Environment.  Required for Dedicated profile types.
  - `minimum_count` - (Optional) The minimum number of instances of workload profile that can be deployed in the Container App Environment.  Required for Dedicated profile types.
  - `name` - (Required) The name of the workload profile.
- - `workload_profile_type` - (Required) Workload profile type for the workloads to run on. Possible values include `D4`, `D8`, `D16`, `D32`, `E4`, `E8`, `E16` and `E32`.
+ - `workload_profile_type` - (Required) Workload profile type for the workloads to run on. Current documented values are `Consumption`, `Flexible`, `D4`, `D8`, `D16`, `D32`, `E4`, `E8`, `E16`, `E32`, `DC4`, `DC8`, `DC16`, `DC32`, `DC48`, `DC64`, `DC96`, `NC24-A100`, `NC48-A100`, `NC96-A100`, `Consumption-GPU-NC24-A100`, and `Consumption-GPU-NC8as-T4`.
 
 Examples:
 
@@ -387,13 +387,38 @@ DESCRIPTION
     error_message = "Invalid value for workload_profile_name. It must start with a letter, contain only letters, numbers, underscores, or dashes, and not end with an underscore or dash. Maximum 15 characters."
   }
   validation {
-    condition     = var.workload_profile == null ? true : can([for wp in var.workload_profile : index(["Consumption", "D4", "D8", "D16", "D32", "E4", "E8", "E16", "E32"], wp.workload_profile_type) >= 0])
-    error_message = "Invalid value for workload_profile_type. Valid options are 'Consumption', 'D4', 'D8', 'D16', 'D32', 'E4', 'E8', 'E16', 'E32'."
+    condition = var.workload_profile == null ? true : alltrue([
+      for wp in var.workload_profile : contains([
+        "Consumption",
+        "Flexible",
+        "D4",
+        "D8",
+        "D16",
+        "D32",
+        "E4",
+        "E8",
+        "E16",
+        "E32",
+        "DC4",
+        "DC8",
+        "DC16",
+        "DC32",
+        "DC48",
+        "DC64",
+        "DC96",
+        "NC24-A100",
+        "NC48-A100",
+        "NC96-A100",
+        "Consumption-GPU-NC24-A100",
+        "Consumption-GPU-NC8as-T4",
+      ], wp.workload_profile_type)
+    ])
+    error_message = "Invalid value for workload_profile_type. Valid options are 'Consumption', 'Flexible', 'D4', 'D8', 'D16', 'D32', 'E4', 'E8', 'E16', 'E32', 'DC4', 'DC8', 'DC16', 'DC32', 'DC48', 'DC64', 'DC96', 'NC24-A100', 'NC48-A100', 'NC96-A100', 'Consumption-GPU-NC24-A100', and 'Consumption-GPU-NC8as-T4'."
   }
 }
 
 variable "zone_redundancy_enabled" {
   type        = bool
   default     = true
-  description = "(Optional) Should the Container App Environment be created with Zone Redundancy enabled? Defaults to `false`. Changing this forces a new resource to be created."
+  description = "(Optional) Should the Container App Environment be created with Zone Redundancy enabled? Defaults to `true`. Changing this forces a new resource to be created."
 }
