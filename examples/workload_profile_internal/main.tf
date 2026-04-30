@@ -72,13 +72,11 @@ module "managedenvironment" {
   location                           = azurerm_resource_group.this.location
   name                               = module.naming.container_app_environment.name_unique
   resource_group_name                = azurerm_resource_group.this.name
-  infrastructure_resource_group_name = "rg-managed-${module.naming.container_app_environment.name_unique}"
-  infrastructure_subnet_id           = azurerm_subnet.this.id
-  internal_load_balancer_enabled     = true
-  log_analytics_workspace            = { resource_id = azurerm_log_analytics_workspace.this.id }
-  workload_profile = [{
-    name                  = "Consumption"
-    workload_profile_type = "Consumption"
-  }]
-  zone_redundancy_enabled = true
+  infrastructure_resource_group = "rg-managed-${module.naming.container_app_environment.name_unique}"
+  vnet_configuration = {
+    infrastructure_subnet_id = azurerm_subnet.this.id
+    internal                 = true
+  }
+  log_analytics_workspace = { resource_id = azurerm_log_analytics_workspace.this.id }
+  zone_redundant = true
 }

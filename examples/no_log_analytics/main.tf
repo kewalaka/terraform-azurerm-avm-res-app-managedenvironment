@@ -50,7 +50,7 @@ module "managedenvironment" {
   location                            = azurerm_resource_group.this.location
   name                                = module.naming.container_app_environment.name_unique
   resource_group_name                 = azurerm_resource_group.this.name
-  log_analytics_workspace_destination = "none"
+  app_logs_configuration = { destination = "none" }
   # zone redundancy must be disabled unless we supply a subnet for vnet integration.
-  zone_redundancy_enabled = false
+  zone_redundant = false
 }
