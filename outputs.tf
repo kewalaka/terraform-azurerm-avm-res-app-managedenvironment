@@ -35,11 +35,6 @@ output "event_stream_endpoint" {
   value       = try(azapi_resource.this_environment.output.properties.eventStreamEndpoint, null)
 }
 
-output "id" {
-  description = "The ID of the container app management environment resource."
-  value       = azapi_resource.this_environment.id
-}
-
 output "infrastructure_resource_group" {
   description = "The infrastructure resource group of the Container Apps Managed Environment."
   value       = try(azapi_resource.this_environment.output.properties.infrastructureResourceGroup, null)
