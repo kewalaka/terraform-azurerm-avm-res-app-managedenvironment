@@ -33,12 +33,3 @@ output "deprecation_warnings" {
   ])
 }
 
-# Deprecated 'id' output — kept for backward compatibility with consumers reading this output.
-# Use 'resource_id' instead.
-output "id" {
-  description = "DEPRECATED: Use `resource_id` instead. The ID of the container app management environment resource."
-  value       = azapi_resource.this_environment.id
-  # TODO(TF-1.15): uncomment when >= 1.15 is the minimum required Terraform version
-  # (trialled in TF 1.14.8: "An argument named \"deprecated\" is not expected here")
-  # deprecated = "Use resource_id instead."
-}
