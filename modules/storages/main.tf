@@ -9,9 +9,6 @@ resource "azapi_resource" "this" {
     "properties.nfsAzureFile.server",
   ]
   response_export_values = [
-    "apiVersion",
-    "systemData",
-    "type"
   ]
   sensitive_body = {
     properties = {

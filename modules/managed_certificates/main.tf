@@ -9,11 +9,8 @@ resource "azapi_resource" "this" {
     "properties.domainControlValidation",
   ]
   response_export_values = [
-    "apiVersion",
     "properties.error",
     "properties.validationToken",
-    "systemData",
-    "type"
   ]
   tags = var.tags
 }

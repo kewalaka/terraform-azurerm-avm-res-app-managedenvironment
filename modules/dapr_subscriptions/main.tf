@@ -8,8 +8,5 @@ resource "azapi_resource" "this" {
     "properties.topic",
   ]
   response_export_values = [
-    "apiVersion",
-    "systemData",
-    "type"
   ]
 }

@@ -9,7 +9,6 @@ resource "azapi_resource" "this" {
     "properties.certificateKeyVaultProperties.identity",
   ]
   response_export_values = [
-    "apiVersion",
     "properties.deploymentErrors",
     "properties.expirationDate",
     "properties.issueDate",
@@ -19,8 +18,6 @@ resource "azapi_resource" "this" {
     "properties.subjectName",
     "properties.thumbprint",
     "properties.valid",
-    "systemData",
-    "type"
   ]
   sensitive_body = {
     properties = {

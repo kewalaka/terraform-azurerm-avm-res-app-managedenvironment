@@ -5,8 +5,5 @@ resource "azapi_resource" "this" {
   body                  = local.resource_body
   replace_triggers_refs = ["properties.componentType"]
   response_export_values = [
-    "apiVersion",
-    "systemData",
-    "type"
   ]
 }
