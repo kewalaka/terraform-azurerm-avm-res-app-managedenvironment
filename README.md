@@ -114,10 +114,6 @@ Certificate password.
 
 **password\_version**  
 Version tracker for password. Must be set when password is provided.
-
-**enable\_telemetry**  
-This variable controls whether or not telemetry is enabled for the module. For more information see https://aka.ms/avm/telemetryinfo.
-
 **location**  
 The location of the resource.
 
@@ -147,7 +143,6 @@ map(object({
       identity      = optional(string)
       key_vault_url = optional(string)
     }))
-    enable_telemetry = optional(bool)
     location         = string
     name             = string
     password         = optional(string)
@@ -272,9 +267,6 @@ Description: Map of instances for the submodule with the following attributes:
 **name**  
 The name of the resource.
 
-**location**  
-The location of the resource.
-
 **component\_type**  
 Component type
 
@@ -286,10 +278,6 @@ Names of container apps that can use this Dapr component
 
 **secret\_store\_component**  
 Name of a Dapr component to retrieve component secrets from
-
-**enable\_telemetry**  
-This variable controls whether or not telemetry is enabled for the module. For more information see https://aka.ms/avm/telemetryinfo.
-
 **ignore\_errors**  
 Boolean describing if the component errors are ignores
 
@@ -311,10 +299,8 @@ Type:
 map(object({
     component_type          = optional(string)
     dapr_components_version = optional(string)
-    enable_telemetry        = optional(bool)
     ignore_errors           = optional(bool)
     init_timeout            = optional(string)
-    location                = string
     metadata = optional(list(object({
       name       = optional(string)
       secret_ref = optional(string)
@@ -362,15 +348,8 @@ Dapr PubSub component name
 
 **topic**  
 Topic name
-
-**enable\_telemetry**  
-This variable controls whether or not telemetry is enabled for the module. For more information see https://aka.ms/avm/telemetryinfo.
-
 **name**  
 The name of the resource.
-
-**location**  
-The location of the resource.
 
 **dead\_letter\_topic**  
 Deadletter topic name
@@ -394,8 +373,6 @@ map(object({
       max_messages_count    = optional(number)
     }))
     dead_letter_topic = optional(string)
-    enable_telemetry  = optional(bool)
-    location          = string
     metadata          = optional(map(string))
     name              = string
     pubsub_name       = optional(string)
@@ -459,15 +436,8 @@ List of .NET Components configuration properties
 
 **service\_binds**  
 List of .NET Components that are bound to the .NET component
-
-**enable\_telemetry**  
-This variable controls whether or not telemetry is enabled for the module. For more information see https://aka.ms/avm/telemetryinfo.
-
 **name**  
 The name of the resource.
-
-**location**  
-The location of the resource.
 
 Type:
 
@@ -478,9 +448,7 @@ map(object({
       property_name = optional(string)
       value         = optional(string)
     })))
-    enable_telemetry = optional(bool)
-    location         = string
-    name             = string
+    name = string
     service_binds = optional(list(object({
       name       = optional(string)
       service_id = optional(string)
@@ -503,15 +471,8 @@ Default: `true`
 ### <a name="input_http_route_configs"></a> [http\_route\_configs](#input\_http\_route\_configs)
 
 Description: Map of instances for the submodule with the following attributes:
-
-**enable\_telemetry**  
-This variable controls whether or not telemetry is enabled for the module. For more information see https://aka.ms/avm/telemetryinfo.
-
 **name**  
 The name of the resource.
-
-**location**  
-The location of the resource.
 
 **custom\_domains**  
 Custom domain bindings for Http Routes' hostnames.
@@ -528,9 +489,7 @@ map(object({
       certificate_id = optional(string)
       name           = string
     })))
-    enable_telemetry = optional(bool)
-    location         = string
-    name             = string
+    name = string
     rules = optional(list(object({
       description = optional(string)
       routes = optional(list(object({
@@ -615,9 +574,6 @@ Default: `null`
 
 Description: Map of instances for the submodule with the following attributes:
 
-**location**  
-The location of the resource.
-
 **configurations**  
 List of Java Components configuration properties
 
@@ -626,9 +582,6 @@ Java component scaling configurations
 
 - `max_replicas` - Optional. Maximum number of Java component replicas
 - `min_replicas` - Optional. Minimum number of Java component replicas. Defaults to 1 if not set
-
-**enable\_telemetry**  
-This variable controls whether or not telemetry is enabled for the module. For more information see https://aka.ms/avm/telemetryinfo.
 
 **name**  
 The name of the resource.
@@ -651,10 +604,8 @@ map(object({
       property_name = optional(string)
       value         = optional(string)
     })))
-    enable_telemetry = optional(bool)
-    ingress          = optional(object({}))
-    location         = string
-    name             = string
+    ingress = optional(object({}))
+    name    = string
     scale = optional(object({
       max_replicas = optional(number)
       min_replicas = optional(number)
@@ -752,15 +703,8 @@ Default: `null`
 
 Description: Map of instances for the submodule with the following attributes:
 
-**location**  
-The location of the resource.
-
 **scheduled\_entries**  
 List of maintenance schedules for a managed environment.
-
-**enable\_telemetry**  
-This variable controls whether or not telemetry is enabled for the module. For more information see https://aka.ms/avm/telemetryinfo.
-
 **name**  
 The name of the resource.
 
@@ -768,9 +712,7 @@ Type:
 
 ```hcl
 map(object({
-    enable_telemetry = optional(bool)
-    location         = string
-    name             = string
+    name = string
     scheduled_entries = list(object({
       duration_hours = number
       start_hour_utc = number
@@ -800,15 +742,11 @@ Selected type of domain control validation for managed certificates.
 **subject\_name**  
 Subject name of the certificate.
 
-**enable\_telemetry**  
-This variable controls whether or not telemetry is enabled for the module. For more information see https://aka.ms/avm/telemetryinfo.
-
 Type:
 
 ```hcl
 map(object({
     domain_control_validation = optional(any)
-    enable_telemetry          = optional(bool)
     location                  = string
     name                      = string
     subject_name              = optional(string)
@@ -993,15 +931,8 @@ Storage account key for azure file.
 
 **account\_key\_version**  
 Version tracker for account\_key. Must be set when account\_key is provided.
-
-**enable\_telemetry**  
-This variable controls whether or not telemetry is enabled for the module. For more information see https://aka.ms/avm/telemetryinfo.
-
 **name**  
 The name of the resource.
-
-**location**  
-The location of the resource.
 
 Type:
 
@@ -1019,9 +950,7 @@ map(object({
       account_name = optional(string)
       share_name   = optional(string)
     }))
-    enable_telemetry = optional(bool)
-    location         = string
-    name             = string
+    name = string
     nfs_azure_file = optional(object({
       access_mode = optional(any)
       server      = optional(string)
