@@ -13,11 +13,6 @@ output "docker_bridge_cidr" {
   value       = module.managedenvironment.docker_bridge_cidr
 }
 
-output "id" {
-  description = "The resource ID of the Container Apps Managed Environment."
-  value       = module.managedenvironment.id
-}
-
 output "infrastructure_resource_group" {
   description = "The infrastructure resource group of the Container Apps Managed Environment."
   value       = module.managedenvironment.infrastructure_resource_group

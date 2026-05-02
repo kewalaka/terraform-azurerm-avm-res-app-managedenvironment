@@ -1,0 +1,41 @@
+variable "http_route_configs" {
+  type = map(object({
+    custom_domains = optional(list(object({
+      binding_type   = optional(any)
+      certificate_id = optional(string)
+      name           = string
+    })))
+    name = string
+    rules = optional(list(object({
+      description = optional(string)
+      routes = optional(list(object({
+        action = optional(object({
+          prefix_rewrite = optional(string)
+        }))
+        match = optional(object({
+          case_sensitive        = optional(bool)
+          path                  = optional(string)
+          path_separated_prefix = optional(string)
+          prefix                = optional(string)
+        }))
+      })))
+      targets = optional(list(object({
+        container_app = string
+        label         = optional(string)
+        revision      = optional(string)
+      })))
+    })))
+  }))
+  default     = {}
+  description = <<DESCRIPTION
+Map of instances for the submodule with the following attributes:
+**name**
+The name of the resource.
+
+**custom_domains**
+Custom domain bindings for Http Routes' hostnames.
+
+**rules**
+Routing Rules for the Http Route resource.
+DESCRIPTION
+}

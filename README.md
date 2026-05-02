@@ -18,7 +18,7 @@ The following requirements are needed by this module:
 
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.10, < 2.0)
 
-- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.6)
+- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.7)
 
 - <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 4.0)
 
@@ -68,89 +68,157 @@ Type: `string`
 
 The following input variables are optional (have default values):
 
+### <a name="input_app_insights_configuration"></a> [app\_insights\_configuration](#input\_app\_insights\_configuration)
+
+Description: THIS IS A VARIABLE USED FOR A PREVIEW SERVICE/FEATURE, MICROSOFT MAY NOT PROVIDE SUPPORT FOR THIS, PLEASE CHECK THE PRODUCT DOCS FOR CLARIFICATION
+
+Environment level Application Insights configuration. Supply the connection string via the ephemeral `connection_string` variable.
+
+- `connection_string` - Application Insights connection string (informational only; supply the value via the ephemeral `connection_string` variable).
+
+Type:
+
+```hcl
+object({
+    connection_string = optional(string)
+  })
+```
+
+Default: `null`
+
+### <a name="input_app_logs_configuration"></a> [app\_logs\_configuration](#input\_app\_logs\_configuration)
+
+Description: Cluster configuration which enables the log daemon to export app logs to configured destination.
+
+- `destination` - Logs destination, can be `'log-analytics'`, `'azure-monitor'` or `'none'`
+- `log_analytics_configuration` - Log Analytics configuration, must only be provided when destination is configured as `'log-analytics'`
+  - `customer_id` - Log analytics customer id
+
+Type:
+
+```hcl
+object({
+    destination = optional(string)
+    log_analytics_configuration = optional(object({
+      customer_id          = optional(string)
+      dynamic_json_columns = optional(bool)
+    }))
+  })
+```
+
+Default: `null`
+
+### <a name="input_availability_zones"></a> [availability\_zones](#input\_availability\_zones)
+
+Description: THIS IS A VARIABLE USED FOR A PREVIEW SERVICE/FEATURE, MICROSOFT MAY NOT PROVIDE SUPPORT FOR THIS, PLEASE CHECK THE PRODUCT DOCS FOR CLARIFICATION
+
+The list of availability zones to use for the managed environment.
+
+Type: `list(string)`
+
+Default: `null`
+
+### <a name="input_certificate_password"></a> [certificate\_password](#input\_certificate\_password)
+
+Description: Certificate password for custom domain. Ephemeral — not stored in state.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_certificate_password_version"></a> [certificate\_password\_version](#input\_certificate\_password\_version)
+
+Description: Version tracker for `certificate_password`. Must be set when `certificate_password` is provided.
+
+Type: `number`
+
+Default: `null`
+
+### <a name="input_certificate_value"></a> [certificate\_value](#input\_certificate\_value)
+
+Description: PFX or PEM blob for the custom domain certificate. Ephemeral — not stored in state. Use `certificate_value_version` to track changes. Takes precedence over `custom_domain_configuration.certificate_value`.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_certificate_value_version"></a> [certificate\_value\_version](#input\_certificate\_value\_version)
+
+Description: Version tracker for `certificate_value`. Must be set when `certificate_value` is provided.
+
+Type: `number`
+
+Default: `null`
+
 ### <a name="input_certificates"></a> [certificates](#input\_certificates)
 
-Description: A map of certificates to create on the Container Apps Managed Environment. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
+Description: Map of instances for the submodule with the following attributes:
 
-Each certificate can be configured in one of two ways:
+**password**  
+Certificate password.
 
-**Direct Certificate Upload:**
-- `certificate_password` - (Optional) The password for the certificate (WriteOnly). Required when using direct certificate upload.
-- `certificate_value` - (Optional) The PFX or PEM blob for the certificate (WriteOnly). Required when using direct certificate upload.
+**password\_version**  
+Version tracker for password. Must be set when password is provided.
+**location**  
+The location of the resource.
 
-**Key Vault Reference:**
-- `key_vault_url` - (Optional) URL pointing to the Azure Key Vault secret that holds the certificate. Required when using Key Vault reference.
-- `key_vault_identity` - (Optional) Resource ID of a managed identity to authenticate with Azure Key Vault, or 'System' to use a system-assigned identity. Required when using Key Vault reference.
+**tags**
+(Optional) Tags of the resource.
 
----
-`timeouts` block supports the following:
-- `create` - (Defaults to 30 minutes) Used when creating the certificate.
-- `delete` - (Defaults to 30 minutes) Used when deleting the certificate.
-- `read` - (Defaults to 5 minutes) Used when retrieving the certificate.
-- `update` - (Defaults to 30 minutes) Used when updating the certificate.
+**value**  
+PFX or PEM blob
 
-Examples:
+**value\_version**  
+Version tracker for value. Must be set when value is provided.
 
-Direct certificate upload:
-```
-certificates = {
-  "my-cert" = {
-    certificate_password = "password123"
-    certificate_value    = file("./cert.pfx")
-  }
-}
-```
+**name**  
+The name of the resource.
 
-Key Vault reference with system-assigned identity:
-```
-certificates = {
-  "my-kv-cert" = {
-    key_vault_url      = "https://myvault.vault.azure.net/secrets/mycert"
-    key_vault_identity = "System"
-  }
-}
-```
+**certificate\_key\_vault\_properties**  
+Properties for a certificate stored in a Key Vault.
 
-Key Vault reference with user-assigned identity:
-```
-certificates = {
-  "my-kv-cert" = {
-    key_vault_url      = "https://myvault.vault.azure.net/secrets/mycert"
-    key_vault_identity = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/myidentity"
-  }
-}
-```
+- `identity` - Resource ID of a managed identity to authenticate with Azure Key Vault, or System to use a system-assigned identity.
+- `key_vault_url` - URL pointing to the Azure Key Vault secret that holds the certificate.
 
 Type:
 
 ```hcl
 map(object({
-    # Direct certificate upload
-    certificate_password = optional(string)
-    certificate_value    = optional(string)
-
-    # Key Vault reference
-    key_vault_url      = optional(string)
-    key_vault_identity = optional(string) # or "System"
-
-    timeouts = optional(object({
-      create = optional(string)
-      delete = optional(string)
-      read   = optional(string)
-      update = optional(string)
+    certificate_key_vault_properties = optional(object({
+      identity      = optional(string)
+      key_vault_url = optional(string)
     }))
+    location         = string
+    name             = string
+    password         = optional(string)
+    password_version = optional(number)
+    tags             = optional(map(string))
+    value            = optional(any)
+    value_version    = optional(number)
   }))
 ```
 
 Default: `{}`
 
+### <a name="input_connection_string"></a> [connection\_string](#input\_connection\_string)
+
+Description: Application Insights connection string for `app_insights_configuration`. Ephemeral — not stored in state. Use `connection_string_version` to track changes.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_connection_string_version"></a> [connection\_string\_version](#input\_connection\_string\_version)
+
+Description: Version tracker for `connection_string`. Must be set when `connection_string` is provided.
+
+Type: `number`
+
+Default: `null`
+
 ### <a name="input_custom_domain_certificate_key_vault_identity"></a> [custom\_domain\_certificate\_key\_vault\_identity](#input\_custom\_domain\_certificate\_key\_vault\_identity)
 
-Description: Resource ID of a managed identity to authenticate with Azure Key Vault for the custom domain certificate, or 'System' to use a system-assigned identity.
-
-This is used when configuring a custom domain for the entire environment (not individual certificates).
-
-Must be used in conjunction with `custom_domain_certificate_key_vault_url`.
+Description: DEPRECATED: Use `custom_domain_configuration.certificate_key_vault_properties.identity` instead. Will be removed in a future major release.
 
 Type: `string`
 
@@ -158,11 +226,7 @@ Default: `null`
 
 ### <a name="input_custom_domain_certificate_key_vault_url"></a> [custom\_domain\_certificate\_key\_vault\_url](#input\_custom\_domain\_certificate\_key\_vault\_url)
 
-Description: URL pointing to the Azure Key Vault secret that holds the certificate for the custom domain.
-
-This is used when configuring a custom domain for the entire environment (not individual certificates).
-
-Must be used in conjunction with `custom_domain_certificate_key_vault_identity`.
+Description: DEPRECATED: Use `custom_domain_configuration.certificate_key_vault_properties.key_vault_url` instead. Will be removed in a future major release.
 
 Type: `string`
 
@@ -170,7 +234,7 @@ Default: `null`
 
 ### <a name="input_custom_domain_certificate_password"></a> [custom\_domain\_certificate\_password](#input\_custom\_domain\_certificate\_password)
 
-Description: Certificate password for custom domain.
+Description: DEPRECATED: Use `certificate_password` (ephemeral) + `certificate_password_version` instead. Will be removed in a future major release.
 
 Type: `string`
 
@@ -178,27 +242,80 @@ Default: `null`
 
 ### <a name="input_custom_domain_certificate_value"></a> [custom\_domain\_certificate\_value](#input\_custom\_domain\_certificate\_value)
 
-Description: PFX or PEM blob for the custom domain certificate (WriteOnly).
-
-This is an alternative to using `custom_domain_certificate_key_vault_url` for direct certificate upload.
-
-If using Key Vault reference, leave this as null and use `custom_domain_certificate_key_vault_url` instead.
+Description: DEPRECATED: Use `custom_domain_configuration.certificate_value` instead. Will be removed in a future major release.
 
 Type: `string`
+
+Default: `null`
+
+### <a name="input_custom_domain_configuration"></a> [custom\_domain\_configuration](#input\_custom\_domain\_configuration)
+
+Description: Custom domain configuration for the environment.
+
+- `certificate_key_vault_properties` - Certificate stored in Azure Key Vault.
+  - `identity` - Resource ID of a managed identity to authenticate with Azure Key Vault, or `System` to use a system-assigned identity.
+  - `key_vault_url` - URL pointing to the Azure Key Vault secret that holds the certificate.
+- `certificate_value` - PFX or PEM blob
+- `dns_suffix` - DNS suffix for the environment domain
+
+Type:
+
+```hcl
+object({
+    certificate_key_vault_properties = optional(object({
+      identity      = optional(string)
+      key_vault_url = optional(string)
+    }))
+    certificate_value = optional(any)
+    dns_suffix        = optional(string)
+  })
+```
 
 Default: `null`
 
 ### <a name="input_custom_domain_dns_suffix"></a> [custom\_domain\_dns\_suffix](#input\_custom\_domain\_dns\_suffix)
 
-Description: DNS suffix for custom domain.
+Description: DEPRECATED: Use `custom_domain_configuration = { dns_suffix = "..." }` instead. Will be removed in a future major release.
 
 Type: `string`
 
 Default: `null`
 
+### <a name="input_dapr_ai_connection_string"></a> [dapr\_ai\_connection\_string](#input\_dapr\_ai\_connection\_string)
+
+Description: Application Insights connection string used by Dapr to export Service to Service communication telemetry. Ephemeral — not stored in state.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_dapr_ai_connection_string_version"></a> [dapr\_ai\_connection\_string\_version](#input\_dapr\_ai\_connection\_string\_version)
+
+Description: Version tracker for `dapr_ai_connection_string`. Must be set when `dapr_ai_connection_string` is provided.
+
+Type: `number`
+
+Default: `null`
+
+### <a name="input_dapr_ai_instrumentation_key"></a> [dapr\_ai\_instrumentation\_key](#input\_dapr\_ai\_instrumentation\_key)
+
+Description: Azure Monitor instrumentation key used by Dapr to export Service to Service communication telemetry. Ephemeral — not stored in state.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_dapr_ai_instrumentation_key_version"></a> [dapr\_ai\_instrumentation\_key\_version](#input\_dapr\_ai\_instrumentation\_key\_version)
+
+Description: Version tracker for `dapr_ai_instrumentation_key`. Must be set when `dapr_ai_instrumentation_key` is provided.
+
+Type: `number`
+
+Default: `null`
+
 ### <a name="input_dapr_application_insights_connection_string"></a> [dapr\_application\_insights\_connection\_string](#input\_dapr\_application\_insights\_connection\_string)
 
-Description: Application Insights connection string used by Dapr to export Service to Service communication telemetry.
+Description: DEPRECATED: Use `dapr_ai_connection_string` (ephemeral) + `dapr_ai_connection_string_version` instead. Will be removed in a future major release.
 
 Type: `string`
 
@@ -206,55 +323,129 @@ Default: `null`
 
 ### <a name="input_dapr_components"></a> [dapr\_components](#input\_dapr\_components)
 
-Description:  - `component_type` - (Required) The Dapr Component Type. For example `state.azure.blobstorage`. Changing this forces a new resource to be created.
- - `ignore_errors` - (Optional) Should the Dapr sidecar to continue initialisation if the component fails to load. Defaults to `false`
- - `init_timeout` - (Optional) The timeout for component initialisation as a `ISO8601` formatted string. e.g. `5s`, `2h`, `1m`. Defaults to `5s`.
- - `secret_store_component` - (Optional) Name of a Dapr component to retrieve component secrets from.
- - `scopes` - (Optional) A list of scopes to which this component applies.
- - `version` - (Required) The version of the component.
+Description: Map of instances for the submodule with the following attributes:
 
- ---
- `metadata` block supports the following:
- - `name` - (Required) The name of the Metadata configuration item.
- - `secret_name` - (Optional) The name of a secret specified in the `secrets` block that contains the value for this metadata configuration item.
- - `value` - (Optional) The value for this metadata configuration item.
+**name**  
+The name of the resource.
 
- ---
- `secret` block supports the following:
- - `name` - (Required) The Secret name.
- - `value` - (Required) The value for this secret.
+**component\_type**  
+Component type
 
- ---
- `timeouts` block supports the following:
- - `create` - (Defaults to 30 minutes) Used when creating the Container App Environment Dapr Component.
- - `delete` - (Defaults to 30 minutes) Used when deleting the Container App Environment Dapr Component.
- - `read` - (Defaults to 5 minutes) Used when retrieving the Container App Environment Dapr Component.
- - `update` - (Defaults to 30 minutes) Used when updating the Container App Environment Dapr Component.
+**metadata**  
+Component metadata
+
+**scopes**  
+Names of container apps that can use this Dapr component
+
+**secret\_store\_component**  
+Name of a Dapr component to retrieve component secrets from
+**ignore\_errors**  
+Boolean describing if the component errors are ignores
+
+**init\_timeout**  
+Initialization timeout
+
+**secrets**  
+Collection of secrets used by a Dapr component
+
+**dapr\_components\_version**  
+Component version
+
+**secrets\_version**  
+Version tracker for secrets. Must be set when secrets is provided.
 
 Type:
 
 ```hcl
 map(object({
-    component_type         = string
-    ignore_errors          = optional(bool, true)
-    init_timeout           = optional(string)
-    secret_store_component = optional(string)
-    scopes                 = optional(list(string))
-    version                = string
+    component_type          = optional(string)
+    dapr_components_version = optional(string)
+    ignore_errors           = optional(bool)
+    init_timeout            = optional(string)
     metadata = optional(list(object({
-      name        = string
-      secret_name = optional(string)
-      value       = optional(string)
+      name       = optional(string)
+      secret_ref = optional(string)
+      value      = optional(string)
     })))
-    secret = optional(set(object({
-      name  = string
-      value = string
+    name                   = string
+    scopes                 = optional(list(string))
+    secret_store_component = optional(string)
+    secrets = optional(list(object({
+      identity      = optional(string)
+      key_vault_url = optional(string)
+      name          = optional(string)
+      value         = optional(string)
     })))
-    timeouts = optional(object({
-      create = optional(string)
-      delete = optional(string)
-      read   = optional(string)
+    secrets_version = optional(number)
+  }))
+```
+
+Default: `{}`
+
+### <a name="input_dapr_configuration"></a> [dapr\_configuration](#input\_dapr\_configuration)
+
+Description: The configuration of Dapr component.
+
+Type: `object({})`
+
+Default: `null`
+
+### <a name="input_dapr_subscriptions"></a> [dapr\_subscriptions](#input\_dapr\_subscriptions)
+
+Description: Map of instances for the submodule with the following attributes:
+
+**bulk\_subscribe**  
+Bulk subscription options
+
+- `enabled` - Enable bulk subscription
+- `max_await_duration_ms` - Maximum duration in milliseconds to wait before a bulk message is sent to the app.
+- `max_messages_count` - Maximum number of messages to deliver in a bulk message.
+
+**metadata**  
+Subscription metadata
+
+**pubsub\_name**  
+Dapr PubSub component name
+
+**topic**  
+Topic name
+**name**  
+The name of the resource.
+
+**dead\_letter\_topic**  
+Deadletter topic name
+
+**routes**  
+Subscription routes
+
+- `default` - The default path to deliver events that do not match any of the rules.
+- `rules` - The list of Dapr PubSub Event Subscription Route Rules.
+
+**scopes**  
+Application scopes to restrict the subscription to specific apps.
+
+Type:
+
+```hcl
+map(object({
+    bulk_subscribe = optional(object({
+      enabled               = optional(bool)
+      max_await_duration_ms = optional(number)
+      max_messages_count    = optional(number)
     }))
+    dead_letter_topic = optional(string)
+    metadata          = optional(map(string))
+    name              = string
+    pubsub_name       = optional(string)
+    routes = optional(object({
+      default = optional(string)
+      rules = optional(list(object({
+        match = optional(string)
+        path  = optional(string)
+      })))
+    }))
+    scopes = optional(list(string))
+    topic  = optional(string)
   }))
 ```
 
@@ -262,7 +453,7 @@ Default: `{}`
 
 ### <a name="input_diagnostic_settings"></a> [diagnostic\_settings](#input\_diagnostic\_settings)
 
-Description: A map of diagnostic settings to create on the Key Vault. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
+Description: A map of diagnostic settings to create on the resource. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
 
 - `name` - (Optional) The name of the diagnostic setting. One will be generated if not set, however this will not be unique if you want to create multiple diagnostic setting resources.
 - `log_categories` - (Optional) A set of log categories to send to the log analytics workspace. Defaults to `[]`.
@@ -273,7 +464,7 @@ Description: A map of diagnostic settings to create on the Key Vault. The map ke
 - `storage_account_resource_id` - (Optional) The resource ID of the storage account to send logs and metrics to.
 - `event_hub_authorization_rule_resource_id` - (Optional) The resource ID of the event hub authorization rule to send logs and metrics to.
 - `event_hub_name` - (Optional) The name of the event hub. If none is specified, the default event hub will be selected.
-- `marketplace_partner_resource_id` - (Optional) The full ARM resource ID of the Marketplace resource to which you would like to send Diagnostic LogsLogs.
+- `marketplace_partner_resource_id` - (Optional) The full ARM resource ID of the Marketplace resource to which you would like to send Diagnostic Logs.
 
 Type:
 
@@ -294,6 +485,66 @@ map(object({
 
 Default: `{}`
 
+### <a name="input_disk_encryption_configuration"></a> [disk\_encryption\_configuration](#input\_disk\_encryption\_configuration)
+
+Description: THIS IS A VARIABLE USED FOR A PREVIEW SERVICE/FEATURE, MICROSOFT MAY NOT PROVIDE SUPPORT FOR THIS, PLEASE CHECK THE PRODUCT DOCS FOR CLARIFICATION
+
+Disk encryption configuration for the Managed Environment.
+
+- `key_vault_configuration` - Key Vault configuration for disk encryption.
+  - `auth` - Authentication configuration.
+    - `identity` - Resource ID of a user-assigned managed identity, or `System` to use the system-assigned identity.
+  - `key_url` - Key URL (including version) pointing to a key in Key Vault.
+
+Type:
+
+```hcl
+object({
+    key_vault_configuration = optional(object({
+      auth = optional(object({
+        identity = optional(string)
+      }))
+      key_url = optional(string)
+    }))
+  })
+```
+
+Default: `null`
+
+### <a name="input_dot_net_components"></a> [dot\_net\_components](#input\_dot\_net\_components)
+
+Description: Map of instances for the submodule with the following attributes:
+
+**component\_type**  
+Type of the .NET Component.
+
+**configurations**  
+List of .NET Components configuration properties
+
+**service\_binds**  
+List of .NET Components that are bound to the .NET component
+**name**  
+The name of the resource.
+
+Type:
+
+```hcl
+map(object({
+    component_type = optional(any)
+    configurations = optional(list(object({
+      property_name = optional(string)
+      value         = optional(string)
+    })))
+    name = string
+    service_binds = optional(list(object({
+      name       = optional(string)
+      service_id = optional(string)
+    })))
+  }))
+```
+
+Default: `{}`
+
 ### <a name="input_enable_telemetry"></a> [enable\_telemetry](#input\_enable\_telemetry)
 
 Description: This variable controls whether or not telemetry is enabled for the module.  
@@ -304,7 +555,53 @@ Type: `bool`
 
 Default: `true`
 
-### <a name="input_infrastructure_resource_group_name"></a> [infrastructure\_resource\_group\_name](#input\_infrastructure\_resource\_group\_name)
+### <a name="input_http_route_configs"></a> [http\_route\_configs](#input\_http\_route\_configs)
+
+Description: Map of instances for the submodule with the following attributes:
+**name**  
+The name of the resource.
+
+**custom\_domains**  
+Custom domain bindings for Http Routes' hostnames.
+
+**rules**  
+Routing Rules for the Http Route resource.
+
+Type:
+
+```hcl
+map(object({
+    custom_domains = optional(list(object({
+      binding_type   = optional(any)
+      certificate_id = optional(string)
+      name           = string
+    })))
+    name = string
+    rules = optional(list(object({
+      description = optional(string)
+      routes = optional(list(object({
+        action = optional(object({
+          prefix_rewrite = optional(string)
+        }))
+        match = optional(object({
+          case_sensitive        = optional(bool)
+          path                  = optional(string)
+          path_separated_prefix = optional(string)
+          prefix                = optional(string)
+        }))
+      })))
+      targets = optional(list(object({
+        container_app = string
+        label         = optional(string)
+        revision      = optional(string)
+      })))
+    })))
+  }))
+```
+
+Default: `{}`
+
+### <a name="input_infrastructure_resource_group"></a> [infrastructure\_resource\_group](#input\_infrastructure\_resource\_group)
 
 Description: Name of the platform-managed resource group created for the Managed Environment to host infrastructure resources.  
 If a subnet ID is provided, this resource group will be created in the same subscription as the subnet.  
@@ -314,27 +611,138 @@ Type: `string`
 
 Default: `null`
 
-### <a name="input_infrastructure_subnet_id"></a> [infrastructure\_subnet\_id](#input\_infrastructure\_subnet\_id)
+### <a name="input_infrastructure_resource_group_name"></a> [infrastructure\_resource\_group\_name](#input\_infrastructure\_resource\_group\_name)
 
-Description: The existing Subnet to use for the Container Apps Control Plane. **NOTE:** The Subnet must have a `/21` or larger address space.
+Description: DEPRECATED: Renamed to `infrastructure_resource_group`. Will be removed in a future major release.
 
 Type: `string`
 
 Default: `null`
 
+### <a name="input_infrastructure_subnet_id"></a> [infrastructure\_subnet\_id](#input\_infrastructure\_subnet\_id)
+
+Description: DEPRECATED: Use `vnet_configuration = { infrastructure_subnet_id = "..." }` instead. Will be removed in a future major release.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_ingress_configuration"></a> [ingress\_configuration](#input\_ingress\_configuration)
+
+Description: Ingress configuration for the Managed Environment.
+
+- `header_count_limit` - Maximum number of headers per request allowed by the ingress. Must be at least 1. Defaults to 100.
+- `request_idle_timeout` - Duration (in minutes) before idle requests are timed out. Must be between 4 and 30 inclusive. Defaults to 4 minutes.
+- `termination_grace_period_seconds` - Time (in seconds) to allow active connections to complete on termination. Must be between 0 and 3600. Defaults to 480 seconds.
+- `workload_profile_name` - Name of the workload profile used by the ingress component.
+
+Type:
+
+```hcl
+object({
+    header_count_limit               = optional(number)
+    request_idle_timeout             = optional(number)
+    termination_grace_period_seconds = optional(number)
+    workload_profile_name            = optional(string)
+  })
+```
+
+Default: `null`
+
 ### <a name="input_internal_load_balancer_enabled"></a> [internal\_load\_balancer\_enabled](#input\_internal\_load\_balancer\_enabled)
 
-Description: Should the Container Environment operate in Internal Load Balancing Mode? Defaults to `false`. **Note:** can only be set to `true` if `infrastructure_subnet_id` is specified.
+Description: DEPRECATED: Use `vnet_configuration = { internal = true }` instead. Will be removed in a future major release.
 
 Type: `bool`
 
-Default: `false`
+Default: `null`
+
+### <a name="input_java_components"></a> [java\_components](#input\_java\_components)
+
+Description: Map of instances for the submodule with the following attributes:
+
+**configurations**  
+List of Java Components configuration properties
+
+**scale**  
+Java component scaling configurations
+
+- `max_replicas` - Optional. Maximum number of Java component replicas
+- `min_replicas` - Optional. Minimum number of Java component replicas. Defaults to 1 if not set
+
+**name**  
+The name of the resource.
+
+**component\_type**  
+The componentType of the resource.
+
+**ingress**  
+Java Component Ingress configurations.
+
+**service\_binds**  
+List of Java Components that are bound to the Java component
+
+Type:
+
+```hcl
+map(object({
+    component_type = string
+    configurations = optional(list(object({
+      property_name = optional(string)
+      value         = optional(string)
+    })))
+    ingress = optional(object({}))
+    name    = string
+    scale = optional(object({
+      max_replicas = optional(number)
+      min_replicas = optional(number)
+    }))
+    service_binds = optional(list(object({
+      name       = optional(string)
+      service_id = optional(string)
+    })))
+  }))
+```
+
+Default: `{}`
+
+### <a name="input_keda_configuration"></a> [keda\_configuration](#input\_keda\_configuration)
+
+Description: The configuration of Keda component.
+
+Type: `object({})`
+
+Default: `null`
+
+### <a name="input_key"></a> [key](#input\_key)
+
+Description: DataDog API key for `open_telemetry_configuration.destinations_configuration.data_dog_configuration`. Ephemeral — not stored in state. Use `key_version` to track changes.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_key_version"></a> [key\_version](#input\_key\_version)
+
+Description: Version tracker for `key`. Must be set when `key` is provided.
+
+Type: `number`
+
+Default: `null`
+
+### <a name="input_kind"></a> [kind](#input\_kind)
+
+Description: Kind of the Managed Environment.
+
+Type: `string`
+
+Default: `null`
 
 ### <a name="input_lock"></a> [lock](#input\_lock)
 
 Description: Controls the Resource Lock configuration for this resource. The following properties can be specified:
 
-- `kind` - (Required) The type of lock. Possible values are `\"CanNotDelete\"` and `\"ReadOnly\"`.
+- `kind` - (Required) The type of lock. Possible values are `"CanNotDelete"` and `"ReadOnly"`.
 - `name` - (Optional) The name of the lock. If not specified, a name will be generated based on the `kind` value. Changing this forces the creation of a new resource.
 
 Type:
@@ -350,15 +758,15 @@ Default: `null`
 
 ### <a name="input_log_analytics_workspace"></a> [log\_analytics\_workspace](#input\_log\_analytics\_workspace)
 
-Description:   The resource ID of the Log Analytics Workspace to link this Container Apps Managed Environment to.
+Description: The resource ID of the Log Analytics Workspace to link this Container Apps Managed Environment to.
 
-  This is the suggested mechanism to link a Log Analytics Workspace to a Container Apps Managed Environment, as it  
-  avoids having to pass the primary shared key directly.
+This is the suggested mechanism to link a Log Analytics Workspace to a Container Apps Managed Environment, as it  
+avoids having to pass the primary shared key directly.
 
-  This requires at least `Microsoft.OperationalInsights/workspaces/sharedkeys/read` over the Log Analytics Workspace resource,  
-  as the key is fetched by the module (i.e. this mirrors the behaviour of the AzureRM provider).
+This requires at least `Microsoft.OperationalInsights/workspaces/sharedkeys/read` over the Log Analytics Workspace resource,  
+as the key is fetched by the module (i.e. this mirrors the behaviour of the AzureRM provider).
 
-  An alternative mechanism is to supply `log_analytics_workspace_primary_shared_key` directly.
+An alternative mechanism is to supply `shared_key` directly.
 
 Type:
 
@@ -372,12 +780,7 @@ Default: `null`
 
 ### <a name="input_log_analytics_workspace_customer_id"></a> [log\_analytics\_workspace\_customer\_id](#input\_log\_analytics\_workspace\_customer\_id)
 
-Description:   The Customer ID for the Log Analytics Workspace to link this Container Apps Managed Environment to.  
-  If specifying this, you must also specify `log_analytics_workspace_primary_shared_key`.
-
-  This scenario is useful where you do not have permissions to directly look up the shared key.
-
-  The preferred mechanism is to specify the `log_analytics_workspace.resource_id`, in which case this variable can be left as `null`.
+Description: DEPRECATED: Use `app_logs_configuration.log_analytics_configuration.customer_id`, or set `log_analytics_workspace.resource_id` to auto-fetch. Will be removed in a future major release.
 
 Type: `string`
 
@@ -385,62 +788,72 @@ Default: `null`
 
 ### <a name="input_log_analytics_workspace_destination"></a> [log\_analytics\_workspace\_destination](#input\_log\_analytics\_workspace\_destination)
 
-Description: Destination for Log Analytics (options: 'log-analytics', 'azure-monitor', 'none').
-
-Type: `string`
-
-Default: `"log-analytics"`
-
-### <a name="input_log_analytics_workspace_primary_shared_key"></a> [log\_analytics\_workspace\_primary\_shared\_key](#input\_log\_analytics\_workspace\_primary\_shared\_key)
-
-Description:   Optional direct mechanism to supply the primary shared key for Log Analytics.
-
-  The alternative method is to use the `log_analytics_workspace.resource_id`, and the module will make a POST request to  
-  fetch the key, in which case this variable can be left as `null`.
+Description: DEPRECATED: Use `app_logs_configuration.destination` instead. Will be removed in a future major release.
 
 Type: `string`
 
 Default: `null`
 
-### <a name="input_managed_certificates"></a> [managed\_certificates](#input\_managed\_certificates)
+### <a name="input_log_analytics_workspace_primary_shared_key"></a> [log\_analytics\_workspace\_primary\_shared\_key](#input\_log\_analytics\_workspace\_primary\_shared\_key)
 
-Description: A map of managed certificates to create on the Container Apps Managed Environment. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
+Description: DEPRECATED: Use `shared_key` (ephemeral) + `shared_key_version` instead. Will be removed in a future major release.
 
-Managed certificates are auto-provisioned and auto-renewed by Azure.
+Type: `string`
 
-- `subject_name` - (Required) The subject name (domain name) for the certificate.
-- `domain_control_validation` - (Optional) The domain control validation method. Possible values: 'CNAME', 'HTTP', 'TXT'. Defaults to 'HTTP'.
+Default: `null`
 
----
-`timeouts` block supports the following:
-- `create` - (Defaults to 30 minutes) Used when creating the managed certificate.
-- `delete` - (Defaults to 30 minutes) Used when deleting the managed certificate.
-- `read` - (Defaults to 5 minutes) Used when retrieving the managed certificate.
-- `update` - (Defaults to 30 minutes) Used when updating the managed certificate.
+### <a name="input_maintenance_configurations"></a> [maintenance\_configurations](#input\_maintenance\_configurations)
 
-Example:
-```
-managed_certificates = {
-  "my-domain-cert" = {
-    subject_name              = "example.com"
-    domain_control_validation = "HTTP"
-  }
-}
-```
+Description: Map of instances for the submodule with the following attributes:
+
+**scheduled\_entries**  
+List of maintenance schedules for a managed environment.
+**name**  
+The name of the resource.
 
 Type:
 
 ```hcl
 map(object({
-    subject_name              = string
-    domain_control_validation = optional(string, "HTTP")
-
-    timeouts = optional(object({
-      create = optional(string)
-      delete = optional(string)
-      read   = optional(string)
-      update = optional(string)
+    name = string
+    scheduled_entries = list(object({
+      duration_hours = number
+      start_hour_utc = number
+      week_day       = string
     }))
+  }))
+```
+
+Default: `{}`
+
+### <a name="input_managed_certificates"></a> [managed\_certificates](#input\_managed\_certificates)
+
+Description: Map of instances for the submodule with the following attributes:
+
+**name**  
+The name of the resource.
+
+**location**  
+The location of the resource.
+
+**tags**
+(Optional) Tags of the resource.
+
+**domain\_control\_validation**  
+Selected type of domain control validation for managed certificates.
+
+**subject\_name**  
+Subject name of the certificate.
+
+Type:
+
+```hcl
+map(object({
+    domain_control_validation = optional(any)
+    location                  = string
+    name                      = string
+    subject_name              = optional(string)
+    tags                      = optional(map(string))
   }))
 ```
 
@@ -448,10 +861,10 @@ Default: `{}`
 
 ### <a name="input_managed_identities"></a> [managed\_identities](#input\_managed\_identities)
 
-Description:   Controls the Managed Identity configuration on this resource. The following properties can be specified:
+Description: Controls the Managed Identity configuration on this resource. The following properties can be specified:
 
-  - `system_assigned` - (Optional) Specifies if the System Assigned Managed Identity should be enabled.
-  - `user_assigned_resource_ids` - (Optional) Specifies a list of User Assigned Managed Identity resource IDs to be assigned to this resource.
+- `system_assigned` - (Optional) Specifies if the System Assigned Managed Identity should be enabled.
+- `user_assigned_resource_ids` - (Optional) Specifies a list of User Assigned Managed Identity resource IDs to be assigned to this resource.
 
 Type:
 
@@ -464,82 +877,144 @@ object({
 
 Default: `{}`
 
+### <a name="input_open_telemetry_configuration"></a> [open\_telemetry\_configuration](#input\_open\_telemetry\_configuration)
+
+Description: THIS IS A VARIABLE USED FOR A PREVIEW SERVICE/FEATURE, MICROSOFT MAY NOT PROVIDE SUPPORT FOR THIS, PLEASE CHECK THE PRODUCT DOCS FOR CLARIFICATION
+
+Environment Open Telemetry configuration.
+
+- `destinations_configuration` - Open telemetry destinations configuration.
+  - `data_dog_configuration` - Datadog destination configuration.
+    - `key` - DataDog API key (informational only; supply the value via the ephemeral `key` variable).
+    - `site` - The DataDog site.
+  - `otlp_configurations` - OTLP endpoint configurations.
+    - `endpoint` - OTLP endpoint URL.
+    - `headers` - HTTP headers for OTLP requests.
+    - `insecure` - Whether the connection is insecure.
+    - `name` - Name of the OTLP configuration.
+- `logs_configuration` - Open telemetry logs configuration.
+  - `destinations` - List of log destination names.
+- `metrics_configuration` - Open telemetry metrics configuration.
+  - `destinations` - List of metrics destination names.
+  - `include_keda` - Include KEDA metrics.
+- `traces_configuration` - Open telemetry traces configuration.
+  - `destinations` - List of traces destination names.
+  - `include_dapr` - Include Dapr traces.
+
+Type:
+
+```hcl
+object({
+    destinations_configuration = optional(object({
+      data_dog_configuration = optional(object({
+        key  = optional(string)
+        site = optional(string)
+      }))
+      otlp_configurations = optional(list(object({
+        endpoint = optional(string)
+        headers = optional(list(object({
+          key   = optional(string)
+          value = optional(string)
+        })))
+        insecure = optional(bool)
+        name     = optional(string)
+      })))
+    }))
+    logs_configuration = optional(object({
+      destinations = optional(list(string))
+    }))
+    metrics_configuration = optional(object({
+      destinations = optional(list(string))
+      include_keda = optional(bool)
+    }))
+    traces_configuration = optional(object({
+      destinations = optional(list(string))
+      include_dapr = optional(bool)
+    }))
+  })
+```
+
+Default: `null`
+
 ### <a name="input_parent_id"></a> [parent\_id](#input\_parent\_id)
 
-Description: The parent resource ID for this resource. When provided, takes precedence over resource\_group\_name.
+Description: The parent resource ID for this resource. When provided, takes precedence over `resource_group_name`.
 
 Type: `string`
 
 Default: `null`
 
+### <a name="input_peer_authentication"></a> [peer\_authentication](#input\_peer\_authentication)
+
+Description: Peer authentication settings for the Managed Environment.
+
+- `mtls` - Mutual TLS authentication settings for the Managed Environment
+  - `enabled` - Boolean indicating whether the mutual TLS authentication is enabled
+
+Type:
+
+```hcl
+object({
+    mtls = optional(object({
+      enabled = optional(bool)
+    }))
+  })
+```
+
+Default: `null`
+
 ### <a name="input_peer_authentication_enabled"></a> [peer\_authentication\_enabled](#input\_peer\_authentication\_enabled)
 
-Description: Enable mutual TLS (mTLS) authentication for peer-to-peer communication between Container Apps within the environment.
-
-When enabled, Container Apps within the environment will use mTLS to mutually authenticate each other. Azure Container Apps  
-automatically manages the certificates required for this authentication.
-
-This is different from `peer_traffic_encryption_enabled`:
-- `peer_authentication_enabled` (this variable) - Enables mutual TLS authentication (both parties verify each other's identity)
-- `peer_traffic_encryption_enabled` - Enables traffic encryption only (encrypts the channel but doesn't enforce mutual authentication)
-
-**Note:** Applications within a Container Apps environment are automatically authenticated when peer-to-peer encryption is enabled.  
-However, the Container Apps runtime doesn't support authorization for access control between applications using the built-in  
-peer-to-peer encryption. For client-to-app mTLS (client certificate authentication), configure at the individual container app level.
-
-Defaults to `false`.
-
-See: https://learn.microsoft.com/en-us/azure/container-apps/ingress-environment-configuration?tabs=azure-cli#peer-to-peer-encryption
+Description: DEPRECATED: Use `peer_authentication = { mtls = { enabled = true } }` instead. Will be removed in a future major release.
 
 Type: `bool`
 
-Default: `false`
+Default: `null`
+
+### <a name="input_peer_traffic_configuration"></a> [peer\_traffic\_configuration](#input\_peer\_traffic\_configuration)
+
+Description: Peer traffic settings for the Managed Environment.
+
+- `encryption` - Peer traffic encryption settings for the Managed Environment
+  - `enabled` - Boolean indicating whether the peer traffic encryption is enabled
+
+Type:
+
+```hcl
+object({
+    encryption = optional(object({
+      enabled = optional(bool)
+    }))
+  })
+```
+
+Default: `null`
 
 ### <a name="input_peer_traffic_encryption_enabled"></a> [peer\_traffic\_encryption\_enabled](#input\_peer\_traffic\_encryption\_enabled)
 
-Description: Enable peer-to-peer traffic encryption within the Container Apps environment.
-
-When enabled, all network traffic between apps within the environment is encrypted using private certificates managed by Azure.
-
-This is different from `peer_authentication_enabled` (mTLS):
-- `peer_authentication_enabled` - Enables mutual TLS authentication (who you are)
-- `peer_traffic_encryption_enabled` - Enables traffic encryption (secure channel)
-
-Both can be enabled independently or together.
-
-**Note:** Enabling peer-to-peer encryption may increase response latency and reduce maximum throughput in high-load scenarios.
-
-Defaults to `false`.
+Description: DEPRECATED: Use `peer_traffic_configuration = { encryption = { enabled = true } }` instead. Will be removed in a future major release.
 
 Type: `bool`
 
-Default: `false`
+Default: `null`
+
+### <a name="input_public_network_access"></a> [public\_network\_access](#input\_public\_network\_access)
+
+Description: Property to allow or block all public traffic. Allowed values: `'Enabled'`, `'Disabled'`.
+
+**Note:** If `vnet_configuration.internal` is `true`, this module forces `'Disabled'` regardless of this setting.
+
+Type: `any`
+
+Default: `null`
 
 ### <a name="input_public_network_access_enabled"></a> [public\_network\_access\_enabled](#input\_public\_network\_access\_enabled)
 
-Description: THIS IS A VARIABLE USED FOR A PREVIEW SERVICE/FEATURE, MICROSOFT MAY NOT PROVIDE SUPPORT FOR THIS, PLEASE CHECK THE PRODUCT DOCS FOR CLARIFICATION.
-
-Controls whether the Container Apps environment accepts traffic from public networks.
-
-When set to `false`, the environment can only be accessed through private endpoints or virtual network integration.  
-This is useful for creating fully private environments that are not accessible from the internet.
-
-**Prerequisites for disabling public access:**
-- The environment must have virtual network integration configured (`infrastructure_subnet_id` must be set)
-- Private endpoints can be configured after disabling public access for secure connectivity
-
-**Note:** This feature requires API version 2024-10-02-preview or later. This module uses API version 2025-02-02-preview.
-
-**Important:** If `internal_load_balancer_enabled` is `true`, Azure does not allow public network access to be `Enabled`.  
-In that case this module will force `publicNetworkAccess` to `Disabled`.
-
-Defaults to `true` (public access enabled).
-
-See: https://learn.microsoft.com/en-us/azure/container-apps/networking#public-network-access
+Description: DEPRECATED: Use `public_network_access` (string: `"Enabled"` or `"Disabled"`) instead. Will be removed in a future major release.
 
 Type: `bool`
 
-Default: `true`
+Default: `null`
 
 ### <a name="input_role_assignments"></a> [role\_assignments](#input\_role\_assignments)
 
@@ -573,32 +1048,75 @@ map(object({
 
 Default: `{}`
 
+### <a name="input_shared_key"></a> [shared\_key](#input\_shared\_key)
+
+Description: Log analytics primary shared key. Ephemeral — not stored in state.
+
+The preferred mechanism is to specify `log_analytics_workspace.resource_id`, in which case this can be left as `null`.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_shared_key_version"></a> [shared\_key\_version](#input\_shared\_key\_version)
+
+Description: Version tracker for `shared_key`. Must be set when `shared_key` is provided.
+
+Type: `number`
+
+Default: `null`
+
 ### <a name="input_storages"></a> [storages](#input\_storages)
 
-Description:  - `access_key` - (Required) The Storage Account Access Key.
- - `access_mode` - (Required) The access mode to connect this storage to the Container App. Possible values include `ReadOnly` and `ReadWrite`. Changing this forces a new resource to be created.
- - `account_name` - (Required) The Azure Storage Account in which the Share to be used is located. Changing this forces a new resource to be created.
- - `share_name` - (Required) The name of the Azure Storage Share to use. Changing this forces a new resource to be created.
+Description: Map of instances for the submodule with the following attributes:
 
- ---
- `timeouts` block supports the following:
- - `create` - (Defaults to 30 minutes) Used when creating the Container App Environment Storage.
- - `delete` - (Defaults to 30 minutes) Used when deleting the Container App Environment Storage.
- - `read` - (Defaults to 5 minutes) Used when retrieving the Container App Environment Storage.
- - `update` - (Defaults to 30 minutes) Used when updating the Container App Environment Storage.
+**azure\_file**  
+Azure file properties
+
+- `access_mode` - Access mode for storage
+- `account_key` - Storage account key for azure file.
+- `account_key_vault_properties` - Storage account key stored as an Azure Key Vault secret.
+  - `identity` - Resource ID of a managed identity to authenticate with Azure Key Vault, or System to use a system-assigned identity.
+  - `key_vault_url` - URL pointing to the Azure Key Vault secret.
+- `account_name` - Storage account name for azure file.
+- `share_name` - Azure file share name.
+
+**nfs\_azure\_file**  
+NFS Azure file properties
+
+- `access_mode` - Access mode for storage
+- `server` - Server for NFS azure file. Specify the Azure storage account server address.
+- `share_name` - NFS Azure file share name.
+
+**account\_key**  
+Storage account key for azure file.
+
+**account\_key\_version**  
+Version tracker for account\_key. Must be set when account\_key is provided.
+**name**  
+The name of the resource.
 
 Type:
 
 ```hcl
 map(object({
-    access_key   = string
-    access_mode  = string
-    account_name = string
-    share_name   = string
-    timeouts = optional(object({
-      create = optional(string)
-      delete = optional(string)
-      read   = optional(string)
+    account_key         = optional(string)
+    account_key_version = optional(number)
+    azure_file = optional(object({
+      access_mode = optional(any)
+      account_key = optional(string)
+      account_key_vault_properties = optional(object({
+        identity      = optional(string)
+        key_vault_url = optional(string)
+      }))
+      account_name = optional(string)
+      share_name   = optional(string)
+    }))
+    name = string
+    nfs_azure_file = optional(object({
+      access_mode = optional(any)
+      server      = optional(string)
+      share_name  = optional(string)
     }))
   }))
 ```
@@ -633,36 +1151,33 @@ object({
 
 Default: `null`
 
-### <a name="input_workload_profile"></a> [workload\_profile](#input\_workload\_profile)
+### <a name="input_vnet_configuration"></a> [vnet\_configuration](#input\_vnet\_configuration)
 
-Description:   
-This lists the workload profiles that will be configured for the Managed Environment.  
-This is in addition to the default Consumption Plan workload profile.
+Description: VNet configuration for the Managed Environment.
 
- - `maximum_count` - (Optional) The maximum number of instances of workload profile that can be deployed in the Container App Environment.  Required for Dedicated profile types.
- - `minimum_count` - (Optional) The minimum number of instances of workload profile that can be deployed in the Container App Environment.  Required for Dedicated profile types.
- - `name` - (Required) The name of the workload profile.
- - `workload_profile_type` - (Required) Workload profile type for the workloads to run on. Possible values include `D4`, `D8`, `D16`, `D32`, `E4`, `E8`, `E16` and `E32`.
+- `docker_bridge_cidr` - CIDR notation IP range assigned to the Docker bridge network. Must not overlap with any other provided IP ranges.
+- `infrastructure_subnet_id` - Resource ID of a subnet for infrastructure components. Must not overlap with any other provided IP ranges.
+- `internal` - Boolean indicating the environment only has an internal load balancer. These environments do not have a public static IP resource. They must provide `infrastructure_subnet_id` if enabling this property.
+- `platform_reserved_cidr` - IP range in CIDR notation that can be reserved for environment infrastructure IP addresses. Must not overlap with any other provided IP ranges.
+- `platform_reserved_dns_ip` - An IP address from the IP range defined by `platform_reserved_cidr` that will be reserved for the internal DNS server.
 
-Examples:
+Type:
 
 ```hcl
-  # this creates a Consumption workload profile:
-  workload_profile = [{
-    name                  = "Consumption"
-    workload_profile_type = "Consumption"
-  }]
-
-  # this creates a Dedicated workload profile, in this scenario a consumption profile is automatically created by the Container Apps service (or can be specified).
-  workload_profile = [{
-    name                  = "Dedicated"
-    workload_profile_type = "D4"
-    maximum_count         = 3
-    minimum_count         = 1
-  }]
-
-  # workload profiles can also be not specified, in which case a Consumption Only plan is created, without workload profiles.
+object({
+    docker_bridge_cidr       = optional(string)
+    infrastructure_subnet_id = optional(string)
+    internal                 = optional(bool)
+    platform_reserved_cidr   = optional(string)
+    platform_reserved_dns_ip = optional(string)
+  })
 ```
+
+Default: `null`
+
+### <a name="input_workload_profile"></a> [workload\_profile](#input\_workload\_profile)
+
+Description: DEPRECATED: Renamed to `workload_profiles` (list). Will be removed in a future major release.
 
 Type:
 
@@ -675,11 +1190,52 @@ set(object({
   }))
 ```
 
-Default: `[]`
+Default: `null`
+
+### <a name="input_workload_profiles"></a> [workload\_profiles](#input\_workload\_profiles)
+
+Description: Workload profiles configured for the Managed Environment. This is in addition to the default Consumption profile.
+
+- `maximum_count` - (Optional) The maximum number of instances of workload profile that can be deployed in the Container App Environment. Required for Dedicated profile types.
+- `minimum_count` - (Optional) The minimum number of instances of workload profile that can be deployed in the Container App Environment. Required for Dedicated profile types.
+- `name` - (Required) The name of the workload profile.
+- `workload_profile_type` - (Required) Workload profile type for the workloads to run on. Possible values include `D4`, `D8`, `D16`, `D32`, `E4`, `E8`, `E16` and `E32`.
+
+Examples:
+
+```hcl
+  workload_profiles = [{
+    name                  = "Dedicated"
+    workload_profile_type = "D4"
+    maximum_count         = 3
+    minimum_count         = 1
+  }]
+```
+
+Type:
+
+```hcl
+list(object({
+    maximum_count         = optional(number)
+    minimum_count         = optional(number)
+    name                  = string
+    workload_profile_type = string
+  }))
+```
+
+Default: `null`
 
 ### <a name="input_zone_redundancy_enabled"></a> [zone\_redundancy\_enabled](#input\_zone\_redundancy\_enabled)
 
-Description: (Optional) Should the Container App Environment be created with Zone Redundancy enabled? Defaults to `false`. Changing this forces a new resource to be created.
+Description: DEPRECATED: Renamed to `zone_redundant`. Will be removed in a future major release.
+
+Type: `bool`
+
+Default: `null`
+
+### <a name="input_zone_redundant"></a> [zone\_redundant](#input\_zone\_redundant)
+
+Description: (Optional) Should the Container App Environment be created with Zone Redundancy enabled? Defaults to `true`. Changing this forces a new resource to be created.
 
 Type: `bool`
 
@@ -697,6 +1253,10 @@ Description: A map of certificates connected to this environment. The map key is
 
 Description: The custom domain verification ID of the Container Apps Managed Environment.
 
+### <a name="output_dapr_ai_instrumentation_key"></a> [dapr\_ai\_instrumentation\_key](#output\_dapr\_ai\_instrumentation\_key)
+
+Description: The Dapr AI instrumentation key of the Container Apps Managed Environment.
+
 ### <a name="output_dapr_component_resource_ids"></a> [dapr\_component\_resource\_ids](#output\_dapr\_component\_resource\_ids)
 
 Description: A map of dapr components connected to this environment. The map key is the supplied input to var.dapr\_components. The map value is the azurerm-formatted version of the entire dapr\_components resource.
@@ -705,13 +1265,21 @@ Description: A map of dapr components connected to this environment. The map key
 
 Description: The default domain of the Container Apps Managed Environment.
 
+### <a name="output_deprecation_warnings"></a> [deprecation\_warnings](#output\_deprecation\_warnings)
+
+Description: Deprecation warnings for any deprecated input variables that are currently set. Empty when no deprecated variables are in use. Check blocks in deprecations.tf also emit these as plan/apply warnings.
+
 ### <a name="output_docker_bridge_cidr"></a> [docker\_bridge\_cidr](#output\_docker\_bridge\_cidr)
 
 Description: The Docker bridge CIDR of the Container Apps Managed Environment.
 
+### <a name="output_event_stream_endpoint"></a> [event\_stream\_endpoint](#output\_event\_stream\_endpoint)
+
+Description: The event stream endpoint of the Container Apps Managed Environment.
+
 ### <a name="output_id"></a> [id](#output\_id)
 
-Description: The ID of the container app management environment resource.
+Description: DEPRECATED: Use 'resource\_id' instead. The resource ID of the Container Apps Managed Environment.
 
 ### <a name="output_infrastructure_resource_group"></a> [infrastructure\_resource\_group](#output\_infrastructure\_resource\_group)
 
@@ -737,6 +1305,10 @@ Description: The platform reserved CIDR of the Container Apps Managed Environmen
 
 Description: The platform reserved DNS IP address of the Container Apps Managed Environment.
 
+### <a name="output_resource"></a> [resource](#output\_resource)
+
+Description: The full resource object of the Container Apps Managed Environment.
+
 ### <a name="output_resource_id"></a> [resource\_id](#output\_resource\_id)
 
 Description: The ID of the container app management environment resource.
@@ -753,27 +1325,57 @@ Description: A map of storage shares connected to this environment. The map key 
 
 The following Modules are called:
 
-### <a name="module_certificate"></a> [certificate](#module\_certificate)
+### <a name="module_certificates"></a> [certificates](#module\_certificates)
 
-Source: ./modules/certificate
-
-Version:
-
-### <a name="module_dapr_component"></a> [dapr\_component](#module\_dapr\_component)
-
-Source: ./modules/dapr_component
+Source: ./modules/certificates
 
 Version:
 
-### <a name="module_managed_certificate"></a> [managed\_certificate](#module\_managed\_certificate)
+### <a name="module_dapr_components"></a> [dapr\_components](#module\_dapr\_components)
 
-Source: ./modules/managed_certificate
+Source: ./modules/dapr_components
 
 Version:
 
-### <a name="module_storage"></a> [storage](#module\_storage)
+### <a name="module_dapr_subscriptions"></a> [dapr\_subscriptions](#module\_dapr\_subscriptions)
 
-Source: ./modules/storage
+Source: ./modules/dapr_subscriptions
+
+Version:
+
+### <a name="module_dot_net_components"></a> [dot\_net\_components](#module\_dot\_net\_components)
+
+Source: ./modules/dot_net_components
+
+Version:
+
+### <a name="module_http_route_configs"></a> [http\_route\_configs](#module\_http\_route\_configs)
+
+Source: ./modules/http_route_configs
+
+Version:
+
+### <a name="module_java_components"></a> [java\_components](#module\_java\_components)
+
+Source: ./modules/java_components
+
+Version:
+
+### <a name="module_maintenance_configurations"></a> [maintenance\_configurations](#module\_maintenance\_configurations)
+
+Source: ./modules/maintenance_configurations
+
+Version:
+
+### <a name="module_managed_certificates"></a> [managed\_certificates](#module\_managed\_certificates)
+
+Source: ./modules/managed_certificates
+
+Version:
+
+### <a name="module_storages"></a> [storages](#module\_storages)
+
+Source: ./modules/storages
 
 Version:
 
