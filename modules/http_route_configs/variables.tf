@@ -51,6 +51,7 @@ variable "rules" {
       container_app = string
       label         = optional(string)
       revision      = optional(string)
+      weight        = optional(number)
     })))
   }))
   default     = null

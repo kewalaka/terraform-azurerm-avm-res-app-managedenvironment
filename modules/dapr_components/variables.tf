@@ -107,3 +107,24 @@ DESCRIPTION
     error_message = "When secrets is set, secrets_version must also be set."
   }
 }
+
+variable "service_component_bind" {
+  type = list(object({
+    metadata = optional(object({
+      name  = optional(string)
+      value = optional(string)
+    }))
+    name       = optional(string)
+    service_id = optional(string)
+  }))
+  default     = null
+  description = <<DESCRIPTION
+List of container app services that are bound to the Dapr component.
+
+- `metadata` - Optional. Metadata for the service bind.
+  - `name` - Optional. Name of the metadata item.
+  - `value` - Optional. Value of the metadata item.
+- `name` - Optional. Name of the service bind.
+- `service_id` - Optional. Service ID to bind to.
+DESCRIPTION
+}

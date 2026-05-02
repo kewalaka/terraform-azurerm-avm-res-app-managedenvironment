@@ -16,6 +16,13 @@ locals {
         name      = item.name
         serviceId = item.service_id
       }]
+      springCloudGatewayRoutes = var.spring_cloud_gateway_routes == null ? null : [for item in var.spring_cloud_gateway_routes : item == null ? null : {
+        filters    = item.filters == null ? null : [for f in item.filters : f]
+        id         = item.id
+        order      = item.order
+        predicates = item.predicates == null ? null : [for p in item.predicates : p]
+        uri        = item.uri
+      }]
     }
   }
 }

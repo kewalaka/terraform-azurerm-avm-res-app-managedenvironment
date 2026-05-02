@@ -5,8 +5,8 @@ The componentType of the resource.
 DESCRIPTION
 
   validation {
-    condition     = contains(["SpringBootAdmin", "SpringCloudConfig", "SpringCloudEureka"], var.component_type)
-    error_message = "component_type must be one of: [\"SpringBootAdmin\", \"SpringCloudConfig\", \"SpringCloudEureka\"]."
+    condition     = contains(["Nacos", "SpringBootAdmin", "SpringCloudConfig", "SpringCloudEureka", "SpringCloudGateway"], var.component_type)
+    error_message = "component_type must be one of: [\"Nacos\", \"SpringBootAdmin\", \"SpringCloudConfig\", \"SpringCloudEureka\", \"SpringCloudGateway\"]."
   }
 }
 
@@ -77,5 +77,25 @@ variable "service_binds" {
   default     = null
   description = <<DESCRIPTION
 List of Java Components that are bound to the Java component
+DESCRIPTION
+}
+
+variable "spring_cloud_gateway_routes" {
+  type = list(object({
+    filters    = optional(list(string))
+    id         = string
+    order      = optional(number)
+    predicates = optional(list(string))
+    uri        = string
+  }))
+  default     = null
+  description = <<DESCRIPTION
+Gateway route definition.
+
+- `filters` - List of gateway filters to apply.
+- `id` - ID for the route.
+- `order` - Ordering of the route.
+- `predicates` - List of predicates to match.
+- `uri` - URI of the route.
 DESCRIPTION
 }

@@ -2,7 +2,7 @@ resource "azapi_resource" "this_environment" {
   location       = var.location
   name           = var.name
   parent_id      = local.parent_id
-  type           = "Microsoft.App/managedEnvironments@2025-07-01"
+  type           = "Microsoft.App/managedEnvironments@2025-10-02-preview"
   body           = local.resource_body
   create_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
   delete_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
@@ -32,6 +32,7 @@ resource "azapi_resource" "this_environment" {
     "properties.infrastructureResourceGroup",
     "properties.kedaConfiguration.version",
     "properties.privateEndpointConnections",
+    "properties.privateLinkDefaultDomain",
     "properties.staticIp",
     "properties.vnetConfiguration.dockerBridgeCidr",
     "properties.vnetConfiguration.platformReservedCidr",
@@ -42,6 +43,9 @@ resource "azapi_resource" "this_environment" {
   schema_validation_enabled = true
   sensitive_body = {
     properties = {
+      appInsightsConfiguration = var.app_insights_configuration == null ? null : {
+        connectionString = var.connection_string
+      }
       appLogsConfiguration = local.effective_app_logs_configuration == null ? null : {
         logAnalyticsConfiguration = {
           sharedKey = local.log_analytics_key
@@ -49,16 +53,27 @@ resource "azapi_resource" "this_environment" {
       }
       customDomainConfiguration = local.effective_custom_domain_configuration == null ? null : {
         certificatePassword = local.effective_certificate_password
+        certificateValue    = local.effective_certificate_value
       }
       daprAIConnectionString   = local.effective_dapr_ai_connection_string
       daprAIInstrumentationKey = var.dapr_ai_instrumentation_key
+      openTelemetryConfiguration = var.open_telemetry_configuration == null ? null : {
+        destinationsConfiguration = {
+          dataDogConfiguration = {
+            key = var.key
+          }
+        }
+      }
     }
   }
   sensitive_body_version = {
-    "properties.appLogsConfiguration.logAnalyticsConfiguration.sharedKey" = var.shared_key_version
-    "properties.customDomainConfiguration.certificatePassword"            = var.certificate_password_version
-    "properties.daprAIConnectionString"                                   = var.dapr_ai_connection_string_version
-    "properties.daprAIInstrumentationKey"                                 = var.dapr_ai_instrumentation_key_version
+    "properties.appInsightsConfiguration.connectionString"                                     = var.connection_string_version
+    "properties.appLogsConfiguration.logAnalyticsConfiguration.sharedKey"                      = var.shared_key_version
+    "properties.customDomainConfiguration.certificatePassword"                                 = var.certificate_password_version
+    "properties.customDomainConfiguration.certificateValue"                                    = var.certificate_value_version
+    "properties.daprAIConnectionString"                                                        = var.dapr_ai_connection_string_version
+    "properties.daprAIInstrumentationKey"                                                      = var.dapr_ai_instrumentation_key_version
+    "properties.openTelemetryConfiguration.destinationsConfiguration.dataDogConfiguration.key" = var.key_version
   }
   tags           = var.tags
   update_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null

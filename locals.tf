@@ -26,6 +26,7 @@ data "azapi_resource" "customer_id" {
 locals {
   # These locals are automatically treated as ephemeral since they depend on ephemeral input variables.
   effective_certificate_password = var.certificate_password != null ? var.certificate_password : var.custom_domain_certificate_password
+  effective_certificate_value    = var.certificate_value != null ? var.certificate_value : try(local.effective_custom_domain_configuration.certificate_value, null)
   effective_custom_domain_configuration = var.custom_domain_configuration != null ? var.custom_domain_configuration : (
     var.custom_domain_dns_suffix != null ||
     var.custom_domain_certificate_value != null ||
@@ -121,21 +122,31 @@ locals {
   resource_body = {
     kind = var.kind
     properties = {
+      appInsightsConfiguration = var.app_insights_configuration == null ? null : {}
       appLogsConfiguration = local.effective_app_logs_configuration == null ? null : {
         destination = local.effective_app_logs_configuration.destination
         logAnalyticsConfiguration = try(local.effective_app_logs_configuration.log_analytics_configuration, null) == null ? null : {
-          customerId = try(local.effective_app_logs_configuration.log_analytics_configuration.customer_id, null)
+          customerId         = try(local.effective_app_logs_configuration.log_analytics_configuration.customer_id, null)
+          dynamicJsonColumns = try(local.effective_app_logs_configuration.log_analytics_configuration.dynamic_json_columns, null)
         }
       }
+      availabilityZones = var.availability_zones == null ? null : [for item in var.availability_zones : item]
       customDomainConfiguration = local.effective_custom_domain_configuration == null ? null : {
         certificateKeyVaultProperties = try(local.effective_custom_domain_configuration.certificate_key_vault_properties, null) == null ? null : {
           identity    = local.effective_custom_domain_configuration.certificate_key_vault_properties.identity
           keyVaultUrl = local.effective_custom_domain_configuration.certificate_key_vault_properties.key_vault_url
         }
-        certificateValue = try(local.effective_custom_domain_configuration.certificate_value, null)
-        dnsSuffix        = try(local.effective_custom_domain_configuration.dns_suffix, null)
+        dnsSuffix = try(local.effective_custom_domain_configuration.dns_suffix, null)
       }
-      daprConfiguration           = var.dapr_configuration == null ? null : {}
+      daprConfiguration = var.dapr_configuration == null ? null : {}
+      diskEncryptionConfiguration = var.disk_encryption_configuration == null ? null : {
+        keyVaultConfiguration = var.disk_encryption_configuration.key_vault_configuration == null ? null : {
+          auth = var.disk_encryption_configuration.key_vault_configuration.auth == null ? null : {
+            identity = var.disk_encryption_configuration.key_vault_configuration.auth.identity
+          }
+          keyUrl = var.disk_encryption_configuration.key_vault_configuration.key_url
+        }
+      }
       infrastructureResourceGroup = local.effective_infrastructure_resource_group
       ingressConfiguration = var.ingress_configuration == null ? null : {
         headerCountLimit              = var.ingress_configuration.header_count_limit
@@ -144,6 +155,33 @@ locals {
         workloadProfileName           = var.ingress_configuration.workload_profile_name
       }
       kedaConfiguration = var.keda_configuration == null ? null : {}
+      openTelemetryConfiguration = var.open_telemetry_configuration == null ? null : {
+        destinationsConfiguration = var.open_telemetry_configuration.destinations_configuration == null ? null : {
+          dataDogConfiguration = var.open_telemetry_configuration.destinations_configuration.data_dog_configuration == null ? null : {
+            site = var.open_telemetry_configuration.destinations_configuration.data_dog_configuration.site
+          }
+          otlpConfigurations = var.open_telemetry_configuration.destinations_configuration.otlp_configurations == null ? null : [for item in var.open_telemetry_configuration.destinations_configuration.otlp_configurations : item == null ? null : {
+            endpoint = item.endpoint
+            headers = item.headers == null ? null : [for hdr in item.headers : hdr == null ? null : {
+              key   = hdr.key
+              value = hdr.value
+            }]
+            insecure = item.insecure
+            name     = item.name
+          }]
+        }
+        logsConfiguration = var.open_telemetry_configuration.logs_configuration == null ? null : {
+          destinations = var.open_telemetry_configuration.logs_configuration.destinations == null ? null : [for item in var.open_telemetry_configuration.logs_configuration.destinations : item]
+        }
+        metricsConfiguration = var.open_telemetry_configuration.metrics_configuration == null ? null : {
+          destinations = var.open_telemetry_configuration.metrics_configuration.destinations == null ? null : [for item in var.open_telemetry_configuration.metrics_configuration.destinations : item]
+          includeKeda  = var.open_telemetry_configuration.metrics_configuration.include_keda
+        }
+        tracesConfiguration = var.open_telemetry_configuration.traces_configuration == null ? null : {
+          destinations = var.open_telemetry_configuration.traces_configuration.destinations == null ? null : [for item in var.open_telemetry_configuration.traces_configuration.destinations : item]
+          includeDapr  = var.open_telemetry_configuration.traces_configuration.include_dapr
+        }
+      }
       peerAuthentication = local.effective_peer_authentication == null ? null : {
         mtls = try(local.effective_peer_authentication.mtls, null) == null ? null : {
           enabled = local.effective_peer_authentication.mtls.enabled

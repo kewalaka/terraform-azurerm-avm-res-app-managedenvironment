@@ -12,7 +12,15 @@ locals {
       }]
       scopes               = var.scopes == null ? null : [for item in var.scopes : item]
       secretStoreComponent = var.secret_store_component
-      version              = var.dapr_components_version
+      serviceComponentBind = var.service_component_bind == null ? null : [for item in var.service_component_bind : item == null ? null : {
+        metadata = item.metadata == null ? null : {
+          name  = item.metadata.name
+          value = item.metadata.value
+        }
+        name      = item.name
+        serviceId = item.service_id
+      }]
+      version = var.dapr_components_version
     }
   }
 }

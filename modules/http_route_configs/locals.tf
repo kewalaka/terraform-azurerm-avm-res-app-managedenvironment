@@ -24,6 +24,7 @@ locals {
           containerApp = item.container_app
           label        = item.label
           revision     = item.revision
+          weight       = item.weight
         }]
       }]
     }

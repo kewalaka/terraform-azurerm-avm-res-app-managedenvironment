@@ -2,7 +2,7 @@ resource "azapi_resource" "this" {
   location  = var.location
   name      = var.name
   parent_id = var.parent_id
-  type      = "Microsoft.App/managedEnvironments/certificates@2025-07-01"
+  type      = "Microsoft.App/managedEnvironments/certificates@2025-10-02-preview"
   body      = local.resource_body
   replace_triggers_refs = [
     "properties.certificateKeyVaultProperties.keyVaultUrl",

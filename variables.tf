@@ -26,7 +26,8 @@ variable "app_logs_configuration" {
   type = object({
     destination = optional(string)
     log_analytics_configuration = optional(object({
-      customer_id = optional(string)
+      customer_id          = optional(string)
+      dynamic_json_columns = optional(bool)
     }))
   })
   default     = null
@@ -570,4 +571,162 @@ variable "zone_redundant" {
   type        = bool
   default     = true
   description = "(Optional) Should the Container App Environment be created with Zone Redundancy enabled? Defaults to `true`. Changing this forces a new resource to be created."
+}
+
+variable "app_insights_configuration" {
+  type = object({
+    connection_string = optional(string)
+  })
+  default     = null
+  description = <<DESCRIPTION
+THIS IS A VARIABLE USED FOR A PREVIEW SERVICE/FEATURE, MICROSOFT MAY NOT PROVIDE SUPPORT FOR THIS, PLEASE CHECK THE PRODUCT DOCS FOR CLARIFICATION
+
+Environment level Application Insights configuration. Supply the connection string via the ephemeral `connection_string` variable.
+
+- `connection_string` - Application Insights connection string (informational only; supply the value via the ephemeral `connection_string` variable).
+
+DESCRIPTION
+}
+
+variable "availability_zones" {
+  type        = list(string)
+  default     = null
+  description = <<DESCRIPTION
+THIS IS A VARIABLE USED FOR A PREVIEW SERVICE/FEATURE, MICROSOFT MAY NOT PROVIDE SUPPORT FOR THIS, PLEASE CHECK THE PRODUCT DOCS FOR CLARIFICATION
+
+The list of availability zones to use for the managed environment.
+DESCRIPTION
+}
+
+variable "certificate_value" {
+  type        = string
+  ephemeral   = true
+  default     = null
+  description = "PFX or PEM blob for the custom domain certificate. Ephemeral — not stored in state. Use `certificate_value_version` to track changes. Takes precedence over `custom_domain_configuration.certificate_value`."
+}
+
+variable "certificate_value_version" {
+  type        = number
+  default     = null
+  description = "Version tracker for `certificate_value`. Must be set when `certificate_value` is provided."
+
+  validation {
+    condition     = var.certificate_value == null || var.certificate_value_version != null
+    error_message = "When certificate_value is set, certificate_value_version must also be set."
+  }
+}
+
+variable "connection_string" {
+  type        = string
+  ephemeral   = true
+  default     = null
+  description = "Application Insights connection string for `app_insights_configuration`. Ephemeral — not stored in state. Use `connection_string_version` to track changes."
+}
+
+variable "connection_string_version" {
+  type        = number
+  default     = null
+  description = "Version tracker for `connection_string`. Must be set when `connection_string` is provided."
+
+  validation {
+    condition     = var.connection_string == null || var.connection_string_version != null
+    error_message = "When connection_string is set, connection_string_version must also be set."
+  }
+}
+
+variable "disk_encryption_configuration" {
+  type = object({
+    key_vault_configuration = optional(object({
+      auth = optional(object({
+        identity = optional(string)
+      }))
+      key_url = optional(string)
+    }))
+  })
+  default     = null
+  description = <<DESCRIPTION
+THIS IS A VARIABLE USED FOR A PREVIEW SERVICE/FEATURE, MICROSOFT MAY NOT PROVIDE SUPPORT FOR THIS, PLEASE CHECK THE PRODUCT DOCS FOR CLARIFICATION
+
+Disk encryption configuration for the Managed Environment.
+
+- `key_vault_configuration` - Key Vault configuration for disk encryption.
+  - `auth` - Authentication configuration.
+    - `identity` - Resource ID of a user-assigned managed identity, or `System` to use the system-assigned identity.
+  - `key_url` - Key URL (including version) pointing to a key in Key Vault.
+
+DESCRIPTION
+}
+
+variable "key" {
+  type        = string
+  ephemeral   = true
+  default     = null
+  description = "DataDog API key for `open_telemetry_configuration.destinations_configuration.data_dog_configuration`. Ephemeral — not stored in state. Use `key_version` to track changes."
+}
+
+variable "key_version" {
+  type        = number
+  default     = null
+  description = "Version tracker for `key`. Must be set when `key` is provided."
+
+  validation {
+    condition     = var.key == null || var.key_version != null
+    error_message = "When key is set, key_version must also be set."
+  }
+}
+
+variable "open_telemetry_configuration" {
+  type = object({
+    destinations_configuration = optional(object({
+      data_dog_configuration = optional(object({
+        key  = optional(string)
+        site = optional(string)
+      }))
+      otlp_configurations = optional(list(object({
+        endpoint = optional(string)
+        headers = optional(list(object({
+          key   = optional(string)
+          value = optional(string)
+        })))
+        insecure = optional(bool)
+        name     = optional(string)
+      })))
+    }))
+    logs_configuration = optional(object({
+      destinations = optional(list(string))
+    }))
+    metrics_configuration = optional(object({
+      destinations = optional(list(string))
+      include_keda = optional(bool)
+    }))
+    traces_configuration = optional(object({
+      destinations = optional(list(string))
+      include_dapr = optional(bool)
+    }))
+  })
+  default     = null
+  description = <<DESCRIPTION
+THIS IS A VARIABLE USED FOR A PREVIEW SERVICE/FEATURE, MICROSOFT MAY NOT PROVIDE SUPPORT FOR THIS, PLEASE CHECK THE PRODUCT DOCS FOR CLARIFICATION
+
+Environment Open Telemetry configuration.
+
+- `destinations_configuration` - Open telemetry destinations configuration.
+  - `data_dog_configuration` - Datadog destination configuration.
+    - `key` - DataDog API key (informational only; supply the value via the ephemeral `key` variable).
+    - `site` - The DataDog site.
+  - `otlp_configurations` - OTLP endpoint configurations.
+    - `endpoint` - OTLP endpoint URL.
+    - `headers` - HTTP headers for OTLP requests.
+    - `insecure` - Whether the connection is insecure.
+    - `name` - Name of the OTLP configuration.
+- `logs_configuration` - Open telemetry logs configuration.
+  - `destinations` - List of log destination names.
+- `metrics_configuration` - Open telemetry metrics configuration.
+  - `destinations` - List of metrics destination names.
+  - `include_keda` - Include KEDA metrics.
+- `traces_configuration` - Open telemetry traces configuration.
+  - `destinations` - List of traces destination names.
+  - `include_dapr` - Include Dapr traces.
+
+DESCRIPTION
 }
