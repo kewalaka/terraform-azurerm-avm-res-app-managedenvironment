@@ -13,6 +13,11 @@
 # dapr_application_insights_connection_string, log_analytics_workspace_primary_shared_key)
 # cannot be included here — ephemeral values may not flow into non-ephemeral outputs.
 
+output "id" {
+  description = "DEPRECATED: Use 'resource_id' instead. The resource ID of the Container Apps Managed Environment."
+  value       = azapi_resource.this.id
+}
+
 output "deprecation_warnings" {
   description = "Deprecation warnings for any deprecated input variables that are currently set. Empty when no deprecated variables are in use. Check blocks in deprecations.tf also emit these as plan/apply warnings."
   value = compact([
