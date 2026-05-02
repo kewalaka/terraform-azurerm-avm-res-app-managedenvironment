@@ -3,6 +3,7 @@ variable "location" {
   description = <<DESCRIPTION
 The location of the resource.
 DESCRIPTION
+  nullable    = false
 }
 
 variable "name" {
