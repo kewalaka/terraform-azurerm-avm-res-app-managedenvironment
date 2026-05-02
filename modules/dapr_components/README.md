@@ -161,13 +161,34 @@ Type: `number`
 
 Default: `null`
 
+### <a name="input_service_component_bind"></a> [service\_component\_bind](#input\_service\_component\_bind)
+
+Description: List of container app services that are bound to the Dapr component.
+
+- `metadata` - Optional. Metadata for the service bind.
+  - `name` - Optional. Name of the metadata item.
+  - `value` - Optional. Value of the metadata item.
+- `name` - Optional. Name of the service bind.
+- `service_id` - Optional. Service ID to bind to.
+
+Type:
+
+```hcl
+list(object({
+    metadata = optional(object({
+      name  = optional(string)
+      value = optional(string)
+    }))
+    name       = optional(string)
+    service_id = optional(string)
+  }))
+```
+
+Default: `null`
+
 ## Outputs
 
 The following outputs are exported:
-
-### <a name="output_api_version"></a> [api\_version](#output\_api\_version)
-
-Description: The resource api version
 
 ### <a name="output_deployment_errors"></a> [deployment\_errors](#output\_deployment\_errors)
 
@@ -180,14 +201,6 @@ Description: The name of the created resource.
 ### <a name="output_resource_id"></a> [resource\_id](#output\_resource\_id)
 
 Description: The ID of the created resource.
-
-### <a name="output_system_data"></a> [system\_data](#output\_system\_data)
-
-Description: Azure Resource Manager metadata containing createdBy and modifiedBy information.
-
-### <a name="output_type"></a> [type](#output\_type)
-
-Description: The resource type
 
 ## Modules
 

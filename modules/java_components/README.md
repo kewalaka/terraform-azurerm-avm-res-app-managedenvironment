@@ -133,13 +133,33 @@ list(object({
 
 Default: `null`
 
+### <a name="input_spring_cloud_gateway_routes"></a> [spring\_cloud\_gateway\_routes](#input\_spring\_cloud\_gateway\_routes)
+
+Description: Gateway route definition.
+
+- `filters` - List of gateway filters to apply.
+- `id` - ID for the route.
+- `order` - Ordering of the route.
+- `predicates` - List of predicates to match.
+- `uri` - URI of the route.
+
+Type:
+
+```hcl
+list(object({
+    filters    = optional(list(string))
+    id         = string
+    order      = optional(number)
+    predicates = optional(list(string))
+    uri        = string
+  }))
+```
+
+Default: `null`
+
 ## Outputs
 
 The following outputs are exported:
-
-### <a name="output_api_version"></a> [api\_version](#output\_api\_version)
-
-Description: The resource api version
 
 ### <a name="output_ingress_fqdn"></a> [ingress\_fqdn](#output\_ingress\_fqdn)
 
@@ -152,14 +172,6 @@ Description: The name of the created resource.
 ### <a name="output_resource_id"></a> [resource\_id](#output\_resource\_id)
 
 Description: The ID of the created resource.
-
-### <a name="output_system_data"></a> [system\_data](#output\_system\_data)
-
-Description: Azure Resource Manager metadata containing createdBy and modifiedBy information.
-
-### <a name="output_type"></a> [type](#output\_type)
-
-Description: The resource type
 
 ## Modules
 

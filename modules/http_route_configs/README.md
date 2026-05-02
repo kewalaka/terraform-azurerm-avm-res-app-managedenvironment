@@ -108,6 +108,7 @@ list(object({
       container_app = string
       label         = optional(string)
       revision      = optional(string)
+      weight        = optional(number)
     })))
   }))
 ```
@@ -117,10 +118,6 @@ Default: `null`
 ## Outputs
 
 The following outputs are exported:
-
-### <a name="output_api_version"></a> [api\_version](#output\_api\_version)
-
-Description: The resource api version
 
 ### <a name="output_fqdn"></a> [fqdn](#output\_fqdn)
 
@@ -137,14 +134,6 @@ Description: List of errors when trying to reconcile http routes
 ### <a name="output_resource_id"></a> [resource\_id](#output\_resource\_id)
 
 Description: The ID of the created resource.
-
-### <a name="output_system_data"></a> [system\_data](#output\_system\_data)
-
-Description: Azure Resource Manager metadata containing createdBy and modifiedBy information.
-
-### <a name="output_type"></a> [type](#output\_type)
-
-Description: The resource type
 
 ## Modules
 

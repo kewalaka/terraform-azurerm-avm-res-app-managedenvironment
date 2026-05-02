@@ -68,6 +68,24 @@ Type: `string`
 
 The following input variables are optional (have default values):
 
+### <a name="input_app_insights_configuration"></a> [app\_insights\_configuration](#input\_app\_insights\_configuration)
+
+Description: THIS IS A VARIABLE USED FOR A PREVIEW SERVICE/FEATURE, MICROSOFT MAY NOT PROVIDE SUPPORT FOR THIS, PLEASE CHECK THE PRODUCT DOCS FOR CLARIFICATION
+
+Environment level Application Insights configuration. Supply the connection string via the ephemeral `connection_string` variable.
+
+- `connection_string` - Application Insights connection string (informational only; supply the value via the ephemeral `connection_string` variable).
+
+Type:
+
+```hcl
+object({
+    connection_string = optional(string)
+  })
+```
+
+Default: `null`
+
 ### <a name="input_app_logs_configuration"></a> [app\_logs\_configuration](#input\_app\_logs\_configuration)
 
 Description: Cluster configuration which enables the log daemon to export app logs to configured destination.
@@ -82,10 +100,21 @@ Type:
 object({
     destination = optional(string)
     log_analytics_configuration = optional(object({
-      customer_id = optional(string)
+      customer_id          = optional(string)
+      dynamic_json_columns = optional(bool)
     }))
   })
 ```
+
+Default: `null`
+
+### <a name="input_availability_zones"></a> [availability\_zones](#input\_availability\_zones)
+
+Description: THIS IS A VARIABLE USED FOR A PREVIEW SERVICE/FEATURE, MICROSOFT MAY NOT PROVIDE SUPPORT FOR THIS, PLEASE CHECK THE PRODUCT DOCS FOR CLARIFICATION
+
+The list of availability zones to use for the managed environment.
+
+Type: `list(string)`
 
 Default: `null`
 
@@ -100,6 +129,22 @@ Default: `null`
 ### <a name="input_certificate_password_version"></a> [certificate\_password\_version](#input\_certificate\_password\_version)
 
 Description: Version tracker for `certificate_password`. Must be set when `certificate_password` is provided.
+
+Type: `number`
+
+Default: `null`
+
+### <a name="input_certificate_value"></a> [certificate\_value](#input\_certificate\_value)
+
+Description: PFX or PEM blob for the custom domain certificate. Ephemeral — not stored in state. Use `certificate_value_version` to track changes. Takes precedence over `custom_domain_configuration.certificate_value`.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_certificate_value_version"></a> [certificate\_value\_version](#input\_certificate\_value\_version)
+
+Description: Version tracker for `certificate_value`. Must be set when `certificate_value` is provided.
 
 Type: `number`
 
@@ -154,6 +199,22 @@ map(object({
 ```
 
 Default: `{}`
+
+### <a name="input_connection_string"></a> [connection\_string](#input\_connection\_string)
+
+Description: Application Insights connection string for `app_insights_configuration`. Ephemeral — not stored in state. Use `connection_string_version` to track changes.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_connection_string_version"></a> [connection\_string\_version](#input\_connection\_string\_version)
+
+Description: Version tracker for `connection_string`. Must be set when `connection_string` is provided.
+
+Type: `number`
+
+Default: `null`
 
 ### <a name="input_custom_domain_certificate_key_vault_identity"></a> [custom\_domain\_certificate\_key\_vault\_identity](#input\_custom\_domain\_certificate\_key\_vault\_identity)
 
@@ -424,6 +485,32 @@ map(object({
 
 Default: `{}`
 
+### <a name="input_disk_encryption_configuration"></a> [disk\_encryption\_configuration](#input\_disk\_encryption\_configuration)
+
+Description: THIS IS A VARIABLE USED FOR A PREVIEW SERVICE/FEATURE, MICROSOFT MAY NOT PROVIDE SUPPORT FOR THIS, PLEASE CHECK THE PRODUCT DOCS FOR CLARIFICATION
+
+Disk encryption configuration for the Managed Environment.
+
+- `key_vault_configuration` - Key Vault configuration for disk encryption.
+  - `auth` - Authentication configuration.
+    - `identity` - Resource ID of a user-assigned managed identity, or `System` to use the system-assigned identity.
+  - `key_url` - Key URL (including version) pointing to a key in Key Vault.
+
+Type:
+
+```hcl
+object({
+    key_vault_configuration = optional(object({
+      auth = optional(object({
+        identity = optional(string)
+      }))
+      key_url = optional(string)
+    }))
+  })
+```
+
+Default: `null`
+
 ### <a name="input_dot_net_components"></a> [dot\_net\_components](#input\_dot\_net\_components)
 
 Description: Map of instances for the submodule with the following attributes:
@@ -627,6 +714,22 @@ Type: `object({})`
 
 Default: `null`
 
+### <a name="input_key"></a> [key](#input\_key)
+
+Description: DataDog API key for `open_telemetry_configuration.destinations_configuration.data_dog_configuration`. Ephemeral — not stored in state. Use `key_version` to track changes.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_key_version"></a> [key\_version](#input\_key\_version)
+
+Description: Version tracker for `key`. Must be set when `key` is provided.
+
+Type: `number`
+
+Default: `null`
+
 ### <a name="input_kind"></a> [kind](#input\_kind)
 
 Description: Kind of the Managed Environment.
@@ -773,6 +876,65 @@ object({
 ```
 
 Default: `{}`
+
+### <a name="input_open_telemetry_configuration"></a> [open\_telemetry\_configuration](#input\_open\_telemetry\_configuration)
+
+Description: THIS IS A VARIABLE USED FOR A PREVIEW SERVICE/FEATURE, MICROSOFT MAY NOT PROVIDE SUPPORT FOR THIS, PLEASE CHECK THE PRODUCT DOCS FOR CLARIFICATION
+
+Environment Open Telemetry configuration.
+
+- `destinations_configuration` - Open telemetry destinations configuration.
+  - `data_dog_configuration` - Datadog destination configuration.
+    - `key` - DataDog API key (informational only; supply the value via the ephemeral `key` variable).
+    - `site` - The DataDog site.
+  - `otlp_configurations` - OTLP endpoint configurations.
+    - `endpoint` - OTLP endpoint URL.
+    - `headers` - HTTP headers for OTLP requests.
+    - `insecure` - Whether the connection is insecure.
+    - `name` - Name of the OTLP configuration.
+- `logs_configuration` - Open telemetry logs configuration.
+  - `destinations` - List of log destination names.
+- `metrics_configuration` - Open telemetry metrics configuration.
+  - `destinations` - List of metrics destination names.
+  - `include_keda` - Include KEDA metrics.
+- `traces_configuration` - Open telemetry traces configuration.
+  - `destinations` - List of traces destination names.
+  - `include_dapr` - Include Dapr traces.
+
+Type:
+
+```hcl
+object({
+    destinations_configuration = optional(object({
+      data_dog_configuration = optional(object({
+        key  = optional(string)
+        site = optional(string)
+      }))
+      otlp_configurations = optional(list(object({
+        endpoint = optional(string)
+        headers = optional(list(object({
+          key   = optional(string)
+          value = optional(string)
+        })))
+        insecure = optional(bool)
+        name     = optional(string)
+      })))
+    }))
+    logs_configuration = optional(object({
+      destinations = optional(list(string))
+    }))
+    metrics_configuration = optional(object({
+      destinations = optional(list(string))
+      include_keda = optional(bool)
+    }))
+    traces_configuration = optional(object({
+      destinations = optional(list(string))
+      include_dapr = optional(bool)
+    }))
+  })
+```
+
+Default: `null`
 
 ### <a name="input_parent_id"></a> [parent\_id](#input\_parent\_id)
 
@@ -1114,6 +1276,10 @@ Description: The Docker bridge CIDR of the Container Apps Managed Environment.
 ### <a name="output_event_stream_endpoint"></a> [event\_stream\_endpoint](#output\_event\_stream\_endpoint)
 
 Description: The event stream endpoint of the Container Apps Managed Environment.
+
+### <a name="output_id"></a> [id](#output\_id)
+
+Description: DEPRECATED: Use 'resource\_id' instead. The resource ID of the Container Apps Managed Environment.
 
 ### <a name="output_infrastructure_resource_group"></a> [infrastructure\_resource\_group](#output\_infrastructure\_resource\_group)
 

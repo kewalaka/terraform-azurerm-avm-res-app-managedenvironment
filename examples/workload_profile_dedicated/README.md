@@ -182,10 +182,6 @@ Description: The default domain of the Container Apps Managed Environment.
 
 Description: The Docker bridge CIDR of the Container Apps Managed Environment.
 
-### <a name="output_id"></a> [id](#output\_id)
-
-Description: The resource ID of the Container Apps Managed Environment.
-
 ### <a name="output_infrastructure_resource_group"></a> [infrastructure\_resource\_group](#output\_infrastructure\_resource\_group)
 
 Description: The infrastructure resource group of the Container Apps Managed Environment.

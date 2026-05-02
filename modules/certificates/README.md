@@ -140,10 +140,6 @@ Default: `null`
 
 The following outputs are exported:
 
-### <a name="output_api_version"></a> [api\_version](#output\_api\_version)
-
-Description: The resource api version
-
 ### <a name="output_deployment_errors"></a> [deployment\_errors](#output\_deployment\_errors)
 
 Description: Any errors that occurred during deployment or deployment validation
@@ -180,17 +176,9 @@ Description: Subject alternative names the certificate applies to.
 
 Description: Subject name of the certificate.
 
-### <a name="output_system_data"></a> [system\_data](#output\_system\_data)
-
-Description: Azure Resource Manager metadata containing createdBy and modifiedBy information.
-
 ### <a name="output_thumbprint"></a> [thumbprint](#output\_thumbprint)
 
 Description: Certificate thumbprint.
-
-### <a name="output_type"></a> [type](#output\_type)
-
-Description: The resource type
 
 ### <a name="output_valid"></a> [valid](#output\_valid)
 

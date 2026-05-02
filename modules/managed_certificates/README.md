@@ -102,10 +102,6 @@ Default: `null`
 
 The following outputs are exported:
 
-### <a name="output_api_version"></a> [api\_version](#output\_api\_version)
-
-Description: The resource api version
-
 ### <a name="output_error"></a> [error](#output\_error)
 
 Description: Any error occurred during the certificate provision.
@@ -117,14 +113,6 @@ Description: The name of the created resource.
 ### <a name="output_resource_id"></a> [resource\_id](#output\_resource\_id)
 
 Description: The ID of the created resource.
-
-### <a name="output_system_data"></a> [system\_data](#output\_system\_data)
-
-Description: Azure Resource Manager metadata containing createdBy and modifiedBy information.
-
-### <a name="output_type"></a> [type](#output\_type)
-
-Description: The resource type
 
 ### <a name="output_validation_token"></a> [validation\_token](#output\_validation\_token)
 

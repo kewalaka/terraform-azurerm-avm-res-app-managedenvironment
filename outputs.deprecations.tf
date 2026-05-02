@@ -13,11 +13,6 @@
 # dapr_application_insights_connection_string, log_analytics_workspace_primary_shared_key)
 # cannot be included here — ephemeral values may not flow into non-ephemeral outputs.
 
-output "id" {
-  description = "DEPRECATED: Use 'resource_id' instead. The resource ID of the Container Apps Managed Environment."
-  value       = azapi_resource.this_environment.id
-}
-
 output "deprecation_warnings" {
   description = "Deprecation warnings for any deprecated input variables that are currently set. Empty when no deprecated variables are in use. Check blocks in deprecations.tf also emit these as plan/apply warnings."
   value = compact([
@@ -36,4 +31,9 @@ output "deprecation_warnings" {
     var.log_analytics_workspace_customer_id != null ? "DEPRECATED: 'log_analytics_workspace_customer_id' has been replaced by 'app_logs_configuration.log_analytics_configuration.customer_id' (or use 'log_analytics_workspace.resource_id' to auto-fetch). Please update your configuration." : null,
     var.log_analytics_workspace_destination != null ? "DEPRECATED: 'log_analytics_workspace_destination' has been replaced by 'app_logs_configuration.destination'. Please update your configuration." : null,
   ])
+}
+
+output "id" {
+  description = "DEPRECATED: Use 'resource_id' instead. The resource ID of the Container Apps Managed Environment."
+  value       = azapi_resource.this_environment.id
 }

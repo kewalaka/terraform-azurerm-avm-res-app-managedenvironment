@@ -13,11 +13,6 @@ output "docker_bridge_cidr" {
   value       = module.managedenvironment.docker_bridge_cidr
 }
 
-output "resource_id" {
-  description = "The resource ID of the Container Apps Managed Environment."
-  value       = module.managedenvironment.resource_id
-}
-
 output "infrastructure_resource_group" {
   description = "The infrastructure resource group of the Container Apps Managed Environment."
   value       = module.managedenvironment.infrastructure_resource_group
@@ -41,6 +36,11 @@ output "platform_reserved_cidr" {
 output "platform_reserved_dns_ip_address" {
   description = "The platform reserved DNS IP address of the Container Apps Managed Environment."
   value       = module.managedenvironment.platform_reserved_dns_ip_address
+}
+
+output "resource_id" {
+  description = "The resource ID of the Container Apps Managed Environment."
+  value       = module.managedenvironment.resource_id
 }
 
 output "static_ip_address" {
