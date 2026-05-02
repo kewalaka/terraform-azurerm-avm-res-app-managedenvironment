@@ -1,7 +1,6 @@
 variable "managed_certificates" {
   type = map(object({
     domain_control_validation = optional(any)
-    enable_telemetry          = optional(bool)
     location                  = string
     name                      = string
     subject_name              = optional(string)
@@ -25,8 +24,5 @@ Selected type of domain control validation for managed certificates.
 
 **subject_name**
 Subject name of the certificate.
-
-**enable_telemetry**
-This variable controls whether or not telemetry is enabled for the module. For more information see https://aka.ms/avm/telemetryinfo.
 DESCRIPTION
 }

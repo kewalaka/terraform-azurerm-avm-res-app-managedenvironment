@@ -9,7 +9,6 @@ module "http_route_configs" {
 
   name           = "my-routes"
   parent_id      = "/subscriptions/.../managedEnvironments/my-env"
-  location       = "australiaeast"
   custom_domains = []
   rules          = []
 }

@@ -4,7 +4,6 @@ variable "certificates" {
       identity      = optional(string)
       key_vault_url = optional(string)
     }))
-    enable_telemetry = optional(bool)
     location         = string
     name             = string
     password         = optional(string)
@@ -22,10 +21,6 @@ Certificate password.
 
 **password_version**
 Version tracker for password. Must be set when password is provided.
-
-**enable_telemetry**
-This variable controls whether or not telemetry is enabled for the module. For more information see https://aka.ms/avm/telemetryinfo.
-
 **location**
 The location of the resource.
 

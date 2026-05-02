@@ -1,10 +1,3 @@
-variable "location" {
-  type        = string
-  description = <<DESCRIPTION
-The location of the resource.
-DESCRIPTION
-}
-
 variable "name" {
   type        = string
   description = <<DESCRIPTION

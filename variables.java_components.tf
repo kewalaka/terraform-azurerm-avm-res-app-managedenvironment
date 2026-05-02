@@ -5,10 +5,8 @@ variable "java_components" {
       property_name = optional(string)
       value         = optional(string)
     })))
-    enable_telemetry = optional(bool)
-    ingress          = optional(object({}))
-    location         = string
-    name             = string
+    ingress = optional(object({}))
+    name    = string
     scale = optional(object({
       max_replicas = optional(number)
       min_replicas = optional(number)
@@ -22,9 +20,6 @@ variable "java_components" {
   description = <<DESCRIPTION
 Map of instances for the submodule with the following attributes:
 
-**location**
-The location of the resource.
-
 **configurations**
 List of Java Components configuration properties
 
@@ -33,10 +28,6 @@ Java component scaling configurations
 
 - `max_replicas` - Optional. Maximum number of Java component replicas
 - `min_replicas` - Optional. Minimum number of Java component replicas. Defaults to 1 if not set
-
-
-**enable_telemetry**
-This variable controls whether or not telemetry is enabled for the module. For more information see https://aka.ms/avm/telemetryinfo.
 
 **name**
 The name of the resource.

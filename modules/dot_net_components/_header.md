@@ -9,7 +9,6 @@ module "dot_net_components" {
 
   name           = "aspire-dashboard"
   parent_id      = "/subscriptions/.../managedEnvironments/my-env"
-  location       = "australiaeast"
   component_type = "AspireDashboard"
   configurations = []
   service_binds  = []

@@ -9,7 +9,6 @@ module "storages" {
 
   name      = "my-storage"
   parent_id = "/subscriptions/.../managedEnvironments/my-env"
-  location  = "australiaeast"
   azure_file = {
     access_mode  = "ReadWrite"
     account_name = "mystorageaccount"

@@ -9,7 +9,6 @@ module "dapr_components" {
 
   name           = "statestore"
   parent_id      = "/subscriptions/.../managedEnvironments/my-env"
-  location       = "australiaeast"
   component_type = "state.azure.blobstorage"
   metadata = [
     { name = "accountName", value = "mystorageaccount" },

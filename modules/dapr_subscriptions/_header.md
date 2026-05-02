@@ -9,7 +9,6 @@ module "dapr_subscriptions" {
 
   name      = "my-subscription"
   parent_id = "/subscriptions/.../managedEnvironments/my-env"
-  location  = "australiaeast"
   pubsub_name = "my-pubsub"
   topic       = "orders"
   bulk_subscribe = { enabled = false }

@@ -9,7 +9,6 @@ module "maintenance_configurations" {
 
   name      = "weekly-window"
   parent_id = "/subscriptions/.../managedEnvironments/my-env"
-  location  = "australiaeast"
   scheduled_entries = [{
     day_of_week      = "Monday"
     duration_in_hours = 8

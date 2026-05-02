@@ -80,7 +80,6 @@ storages = {
 storages = {
   "my-storage" = {
     name     = "my-storage"
-    location = "eastus"
     azure_file = {
       access_mode  = "ReadWrite"
       account_name = "mystorageaccount"
@@ -115,7 +114,6 @@ dapr_components = {
 dapr_components = {
   "my-component" = {
     name                    = "my-component"
-    location                = "eastus"
     component_type          = "state.redis"
     dapr_components_version = "v1"
     secrets = [{
@@ -217,6 +215,52 @@ The following variables are removed; use `app_logs_configuration` instead:
 | Provider | Before | After |
 |---|---|---|
 | `azapi` | `~> 2.6` | `~> 2.7` |
+
+---
+
+## Submodule Interface Changes
+
+### `enable_telemetry` removed from per-instance variable types
+
+`enable_telemetry` has been removed from every child resource variable type (e.g. `dapr_components`, `storages`, `certificates`, etc.). Telemetry is now controlled at the root module level via `var.enable_telemetry`, which is passed to all submodules automatically.
+
+**Before:**
+```hcl
+dapr_components = {
+  "my-component" = {
+    name             = "my-component"
+    enable_telemetry = false  # per-instance — no longer supported
+    ...
+  }
+}
+```
+
+**After:** remove `enable_telemetry` from all per-instance maps. To disable telemetry, set it on the root module:
+```hcl
+module "managed_environment" {
+  ...
+  enable_telemetry = false
+}
+```
+
+### `location` removed from non-location-bearing submodule variable types
+
+`location` has been removed from the variable types for submodules whose child resources do not have a location property in the Azure API: `dapr_components`, `dapr_subscriptions`, `dot_net_components`, `http_route_configs`, `java_components`, `maintenance_configurations`, and `storages`.
+
+`location` is **retained** in `certificates` and `managed_certificates` because those resources accept a location in the API body.
+
+**Before:**
+```hcl
+dapr_components = {
+  "my-component" = {
+    name     = "my-component"
+    location = "eastus"  # no longer accepted for these submodules
+    ...
+  }
+}
+```
+
+**After:** remove `location` from instances of the above 7 submodule types.
 
 ---
 

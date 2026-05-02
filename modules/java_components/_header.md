@@ -9,7 +9,6 @@ module "java_components" {
 
   name           = "eureka"
   parent_id      = "/subscriptions/.../managedEnvironments/my-env"
-  location       = "australiaeast"
   component_type = "SpringCloudEureka"
   configurations = []
   ingress        = {}

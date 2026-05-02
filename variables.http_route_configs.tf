@@ -5,9 +5,7 @@ variable "http_route_configs" {
       certificate_id = optional(string)
       name           = string
     })))
-    enable_telemetry = optional(bool)
-    location         = string
-    name             = string
+    name = string
     rules = optional(list(object({
       description = optional(string)
       routes = optional(list(object({
@@ -31,15 +29,8 @@ variable "http_route_configs" {
   default     = {}
   description = <<DESCRIPTION
 Map of instances for the submodule with the following attributes:
-
-**enable_telemetry**
-This variable controls whether or not telemetry is enabled for the module. For more information see https://aka.ms/avm/telemetryinfo.
-
 **name**
 The name of the resource.
-
-**location**
-The location of the resource.
 
 **custom_domains**
 Custom domain bindings for Http Routes' hostnames.

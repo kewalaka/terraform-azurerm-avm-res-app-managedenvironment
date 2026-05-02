@@ -12,9 +12,7 @@ variable "storages" {
       account_name = optional(string)
       share_name   = optional(string)
     }))
-    enable_telemetry = optional(bool)
-    location         = string
-    name             = string
+    name = string
     nfs_azure_file = optional(object({
       access_mode = optional(any)
       server      = optional(string)
@@ -50,14 +48,7 @@ Storage account key for azure file.
 
 **account_key_version**
 Version tracker for account_key. Must be set when account_key is provided.
-
-**enable_telemetry**
-This variable controls whether or not telemetry is enabled for the module. For more information see https://aka.ms/avm/telemetryinfo.
-
 **name**
 The name of the resource.
-
-**location**
-The location of the resource.
 DESCRIPTION
 }

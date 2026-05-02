@@ -6,8 +6,6 @@ variable "dapr_subscriptions" {
       max_messages_count    = optional(number)
     }))
     dead_letter_topic = optional(string)
-    enable_telemetry  = optional(bool)
-    location          = string
     metadata          = optional(map(string))
     name              = string
     pubsub_name       = optional(string)
@@ -41,15 +39,8 @@ Dapr PubSub component name
 
 **topic**
 Topic name
-
-**enable_telemetry**
-This variable controls whether or not telemetry is enabled for the module. For more information see https://aka.ms/avm/telemetryinfo.
-
 **name**
 The name of the resource.
-
-**location**
-The location of the resource.
 
 **dead_letter_topic**
 Deadletter topic name
