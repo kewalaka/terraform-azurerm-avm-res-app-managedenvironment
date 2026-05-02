@@ -1,117 +1,116 @@
-variable "name" {
-  description = <<DESCRIPTION
-The name of the resource.
-DESCRIPTION
-  type        = string
-}
-
-variable "parent_id" {
-  description = <<DESCRIPTION
-The parent resource ID for this resource.
-DESCRIPTION
-  type        = string
-}
-
 variable "location" {
+  type        = string
   description = <<DESCRIPTION
 The location of the resource.
 DESCRIPTION
+}
+
+variable "name" {
   type        = string
+  description = <<DESCRIPTION
+The name of the resource.
+DESCRIPTION
+}
+
+variable "parent_id" {
+  type        = string
+  description = <<DESCRIPTION
+The parent resource ID for this resource.
+DESCRIPTION
 }
 
 variable "component_type" {
+  type        = string
+  default     = null
   description = <<DESCRIPTION
 Component type
 DESCRIPTION
+}
+
+variable "dapr_components_version" {
   type        = string
   default     = null
+  description = <<DESCRIPTION
+Component version
+DESCRIPTION
+}
+
+variable "enable_telemetry" {
+  type        = bool
+  default     = true
+  description = <<DESCRIPTION
+This variable controls whether or not telemetry is enabled for the module. For more information see https://aka.ms/avm/telemetryinfo.
+DESCRIPTION
+  nullable    = false
 }
 
 variable "ignore_errors" {
+  type        = bool
+  default     = null
   description = <<DESCRIPTION
 Boolean describing if the component errors are ignores
 DESCRIPTION
-  type        = bool
-  default     = null
 }
 
 variable "init_timeout" {
+  type        = string
+  default     = null
   description = <<DESCRIPTION
 Initialization timeout
 DESCRIPTION
-  type        = string
-  default     = null
 }
 
 variable "metadata" {
-  description = <<DESCRIPTION
-Component metadata
-DESCRIPTION
   type = list(object({
     name       = optional(string)
     secret_ref = optional(string)
     value      = optional(string)
   }))
-  default = null
+  default     = null
+  description = <<DESCRIPTION
+Component metadata
+DESCRIPTION
 }
 
 variable "scopes" {
+  type        = list(string)
+  default     = null
   description = <<DESCRIPTION
 Names of container apps that can use this Dapr component
 DESCRIPTION
-  type        = list(string)
-  default     = null
 }
 
 variable "secret_store_component" {
+  type        = string
+  default     = null
   description = <<DESCRIPTION
 Name of a Dapr component to retrieve component secrets from
 DESCRIPTION
-  type        = string
-  default     = null
 }
 
 variable "secrets" {
-  description = <<DESCRIPTION
-Collection of secrets used by a Dapr component
-DESCRIPTION
   type = list(object({
     identity      = optional(string)
     key_vault_url = optional(string)
     name          = optional(string)
     value         = optional(string)
   }))
-  default   = null
-  ephemeral = true
-}
-
-variable "dapr_components_version" {
-  description = <<DESCRIPTION
-Component version
-DESCRIPTION
-  type        = string
+  ephemeral   = true
   default     = null
+  description = <<DESCRIPTION
+Collection of secrets used by a Dapr component
+DESCRIPTION
 }
-
 
 variable "secrets_version" {
+  type        = number
+  default     = null
   description = <<DESCRIPTION
 Version tracker for secrets. Must be set when secrets is provided.
 DESCRIPTION
-  type        = number
-  default     = null
+
   validation {
-    condition     = var.secrets  ==  null  ||  var.secrets_version  !=  null
+    condition     = var.secrets == null || var.secrets_version != null
     error_message = "When secrets is set, secrets_version must also be set."
   }
 }
-
-variable "enable_telemetry" {
-  description = <<DESCRIPTION
-This variable controls whether or not telemetry is enabled for the module. For more information see https://aka.ms/avm/telemetryinfo.
-DESCRIPTION
-  type        = bool
-  default     = true
-  nullable    = false
-}
-

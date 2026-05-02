@@ -1,25 +1,58 @@
-variable "name" {
-  description = <<DESCRIPTION
-The name of the resource.
-DESCRIPTION
-  type        = string
-}
-
-variable "parent_id" {
-  description = <<DESCRIPTION
-The parent resource ID for this resource.
-DESCRIPTION
-  type        = string
-}
-
 variable "location" {
+  type        = string
   description = <<DESCRIPTION
 The location of the resource.
 DESCRIPTION
+}
+
+variable "name" {
   type        = string
+  description = <<DESCRIPTION
+The name of the resource.
+DESCRIPTION
+}
+
+variable "parent_id" {
+  type        = string
+  description = <<DESCRIPTION
+The parent resource ID for this resource.
+DESCRIPTION
+}
+
+variable "account_key" {
+  type        = string
+  ephemeral   = true
+  default     = null
+  description = <<DESCRIPTION
+Storage account key for azure file.
+DESCRIPTION
+}
+
+variable "account_key_version" {
+  type        = number
+  default     = null
+  description = <<DESCRIPTION
+Version tracker for account_key. Must be set when account_key is provided.
+DESCRIPTION
+
+  validation {
+    condition     = var.account_key == null || var.account_key_version != null
+    error_message = "When account_key is set, account_key_version must also be set."
+  }
 }
 
 variable "azure_file" {
+  type = object({
+    access_mode = optional(any)
+    account_key = optional(string)
+    account_key_vault_properties = optional(object({
+      identity      = optional(string)
+      key_vault_url = optional(string)
+    }))
+    account_name = optional(string)
+    share_name   = optional(string)
+  })
+  default     = null
   description = <<DESCRIPTION
 Azure file properties
 
@@ -32,20 +65,24 @@ Azure file properties
 - `share_name` - Azure file share name.
 
 DESCRIPTION
-  type = object({
-    access_mode = optional(any)
-    account_key = optional(string)
-    account_key_vault_properties = optional(object({
-      identity      = optional(string)
-      key_vault_url = optional(string)
-    }))
-    account_name = optional(string)
-    share_name   = optional(string)
-  })
-  default = null
+}
+
+variable "enable_telemetry" {
+  type        = bool
+  default     = true
+  description = <<DESCRIPTION
+This variable controls whether or not telemetry is enabled for the module. For more information see https://aka.ms/avm/telemetryinfo.
+DESCRIPTION
+  nullable    = false
 }
 
 variable "nfs_azure_file" {
+  type = object({
+    access_mode = optional(any)
+    server      = optional(string)
+    share_name  = optional(string)
+  })
+  default     = null
   description = <<DESCRIPTION
 NFS Azure file properties
 
@@ -54,43 +91,4 @@ NFS Azure file properties
 - `share_name` - NFS Azure file share name.
 
 DESCRIPTION
-  type = object({
-    access_mode = optional(any)
-    server      = optional(string)
-    share_name  = optional(string)
-  })
-  default = null
 }
-
-
-variable "account_key" {
-  description = <<DESCRIPTION
-Storage account key for azure file.
-DESCRIPTION
-  type        = string
-  default     = null
-  ephemeral   = true
-}
-
-
-variable "account_key_version" {
-  description = <<DESCRIPTION
-Version tracker for account_key. Must be set when account_key is provided.
-DESCRIPTION
-  type        = number
-  default     = null
-  validation {
-    condition     = var.account_key  ==  null  ||  var.account_key_version  !=  null
-    error_message = "When account_key is set, account_key_version must also be set."
-  }
-}
-
-variable "enable_telemetry" {
-  description = <<DESCRIPTION
-This variable controls whether or not telemetry is enabled for the module. For more information see https://aka.ms/avm/telemetryinfo.
-DESCRIPTION
-  type        = bool
-  default     = true
-  nullable    = false
-}
-

@@ -1,13 +1,3 @@
-output "resource_id" {
-  description = "The ID of the created resource."
-  value       = azapi_resource.this.id
-}
-
-output "name" {
-  description = "The name of the created resource."
-  value       = azapi_resource.this.name
-}
-
 output "api_version" {
   description = "The resource api version"
   value       = try(azapi_resource.this.output.apiVersion, null)
@@ -33,9 +23,19 @@ output "issuer" {
   value       = try(azapi_resource.this.output.properties.issuer, null)
 }
 
+output "name" {
+  description = "The name of the created resource."
+  value       = azapi_resource.this.name
+}
+
 output "public_key_hash" {
   description = "Public key hash."
   value       = try(azapi_resource.this.output.properties.publicKeyHash, null)
+}
+
+output "resource_id" {
+  description = "The ID of the created resource."
+  value       = azapi_resource.this.id
 }
 
 output "subject_alternative_names" {
@@ -48,19 +48,14 @@ output "subject_name" {
   value       = try(azapi_resource.this.output.properties.subjectName, null)
 }
 
-output "thumbprint" {
-  description = "Certificate thumbprint."
-  value       = try(azapi_resource.this.output.properties.thumbprint, null)
-}
-
-output "valid" {
-  description = "Is the certificate valid?."
-  value       = try(azapi_resource.this.output.properties.valid, null)
-}
-
 output "system_data" {
   description = "Azure Resource Manager metadata containing createdBy and modifiedBy information."
   value       = try(azapi_resource.this.output.systemData, {})
+}
+
+output "thumbprint" {
+  description = "Certificate thumbprint."
+  value       = try(azapi_resource.this.output.properties.thumbprint, null)
 }
 
 output "type" {
@@ -68,3 +63,7 @@ output "type" {
   value       = try(azapi_resource.this.output.type, null)
 }
 
+output "valid" {
+  description = "Is the certificate valid?."
+  value       = try(azapi_resource.this.output.properties.valid, null)
+}

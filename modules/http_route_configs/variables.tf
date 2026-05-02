@@ -1,40 +1,46 @@
-variable "name" {
-  description = <<DESCRIPTION
-The name of the resource.
-DESCRIPTION
-  type        = string
-}
-
-variable "parent_id" {
-  description = <<DESCRIPTION
-The parent resource ID for this resource.
-DESCRIPTION
-  type        = string
-}
-
 variable "location" {
+  type        = string
   description = <<DESCRIPTION
 The location of the resource.
 DESCRIPTION
+}
+
+variable "name" {
   type        = string
+  description = <<DESCRIPTION
+The name of the resource.
+DESCRIPTION
+}
+
+variable "parent_id" {
+  type        = string
+  description = <<DESCRIPTION
+The parent resource ID for this resource.
+DESCRIPTION
 }
 
 variable "custom_domains" {
-  description = <<DESCRIPTION
-Custom domain bindings for Http Routes' hostnames.
-DESCRIPTION
   type = list(object({
     binding_type   = optional(any)
     certificate_id = optional(string)
     name           = string
   }))
-  default = null
+  default     = null
+  description = <<DESCRIPTION
+Custom domain bindings for Http Routes' hostnames.
+DESCRIPTION
+}
+
+variable "enable_telemetry" {
+  type        = bool
+  default     = true
+  description = <<DESCRIPTION
+This variable controls whether or not telemetry is enabled for the module. For more information see https://aka.ms/avm/telemetryinfo.
+DESCRIPTION
+  nullable    = false
 }
 
 variable "rules" {
-  description = <<DESCRIPTION
-Routing Rules for the Http Route resource.
-DESCRIPTION
   type = list(object({
     description = optional(string)
     routes = optional(list(object({
@@ -54,16 +60,8 @@ DESCRIPTION
       revision      = optional(string)
     })))
   }))
-  default = null
-}
-
-
-variable "enable_telemetry" {
+  default     = null
   description = <<DESCRIPTION
-This variable controls whether or not telemetry is enabled for the module. For more information see https://aka.ms/avm/telemetryinfo.
+Routing Rules for the Http Route resource.
 DESCRIPTION
-  type        = bool
-  default     = true
-  nullable    = false
 }
-

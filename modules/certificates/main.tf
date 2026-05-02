@@ -1,24 +1,13 @@
 resource "azapi_resource" "this" {
-  type      = "Microsoft.App/managedEnvironments/certificates@2025-07-01"
+  location  = var.location
   name      = var.name
   parent_id = var.parent_id
-  location  = var.location
+  type      = "Microsoft.App/managedEnvironments/certificates@2025-07-01"
   body      = local.resource_body
   replace_triggers_refs = [
     "properties.certificateKeyVaultProperties.keyVaultUrl",
     "properties.certificateKeyVaultProperties.identity",
   ]
-  sensitive_body = {
-    properties = {
-      password = var.password
-      value    = var.value
-    }
-  }
-  sensitive_body_version = {
-    "properties.password" = var.password_version
-    "properties.value"    = var.value_version
-  }
-  tags = var.tags
   response_export_values = [
     "apiVersion",
     "properties.deploymentErrors",
@@ -33,4 +22,15 @@ resource "azapi_resource" "this" {
     "systemData",
     "type"
   ]
+  sensitive_body = {
+    properties = {
+      password = var.password
+      value    = var.value
+    }
+  }
+  sensitive_body_version = {
+    "properties.password" = var.password_version
+    "properties.value"    = var.value_version
+  }
+  tags = var.tags
 }

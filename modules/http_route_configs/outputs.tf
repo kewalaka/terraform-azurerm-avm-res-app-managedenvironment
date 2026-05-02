@@ -1,13 +1,3 @@
-output "resource_id" {
-  description = "The ID of the created resource."
-  value       = azapi_resource.this.id
-}
-
-output "name" {
-  description = "The name of the created resource."
-  value       = azapi_resource.this.name
-}
-
 output "api_version" {
   description = "The resource api version"
   value       = try(azapi_resource.this.output.apiVersion, null)
@@ -18,9 +8,19 @@ output "fqdn" {
   value       = try(azapi_resource.this.output.properties.fqdn, null)
 }
 
+output "name" {
+  description = "The name of the created resource."
+  value       = azapi_resource.this.name
+}
+
 output "provisioning_errors" {
   description = "List of errors when trying to reconcile http routes"
   value       = try(azapi_resource.this.output.properties.provisioningErrors, [])
+}
+
+output "resource_id" {
+  description = "The ID of the created resource."
+  value       = azapi_resource.this.id
 }
 
 output "system_data" {
@@ -32,4 +32,3 @@ output "type" {
   description = "The resource type"
   value       = try(azapi_resource.this.output.type, null)
 }
-

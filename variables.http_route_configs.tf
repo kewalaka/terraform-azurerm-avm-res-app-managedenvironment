@@ -1,22 +1,4 @@
 variable "http_route_configs" {
-  description = <<DESCRIPTION
-Map of instances for the submodule with the following attributes:
-
-**enable_telemetry**
-This variable controls whether or not telemetry is enabled for the module. For more information see https://aka.ms/avm/telemetryinfo.
-
-**name**
-The name of the resource.
-
-**location**
-The location of the resource.
-
-**custom_domains**
-Custom domain bindings for Http Routes' hostnames.
-
-**rules**
-Routing Rules for the Http Route resource.
-DESCRIPTION
   type = map(object({
     custom_domains = optional(list(object({
       binding_type   = optional(any)
@@ -46,5 +28,23 @@ DESCRIPTION
       })))
     })))
   }))
-  default = {}
+  default     = {}
+  description = <<DESCRIPTION
+Map of instances for the submodule with the following attributes:
+
+**enable_telemetry**
+This variable controls whether or not telemetry is enabled for the module. For more information see https://aka.ms/avm/telemetryinfo.
+
+**name**
+The name of the resource.
+
+**location**
+The location of the resource.
+
+**custom_domains**
+Custom domain bindings for Http Routes' hostnames.
+
+**rules**
+Routing Rules for the Http Route resource.
+DESCRIPTION
 }

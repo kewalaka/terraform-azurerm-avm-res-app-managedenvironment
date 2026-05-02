@@ -1,4 +1,15 @@
 variable "maintenance_configurations" {
+  type = map(object({
+    enable_telemetry = optional(bool)
+    location         = string
+    name             = string
+    scheduled_entries = list(object({
+      duration_hours = number
+      start_hour_utc = number
+      week_day       = string
+    }))
+  }))
+  default     = {}
   description = <<DESCRIPTION
 Map of instances for the submodule with the following attributes:
 
@@ -14,15 +25,4 @@ This variable controls whether or not telemetry is enabled for the module. For m
 **name**
 The name of the resource.
 DESCRIPTION
-  type = map(object({
-    enable_telemetry = optional(bool)
-    location         = string
-    name             = string
-    scheduled_entries = list(object({
-      duration_hours = number
-      start_hour_utc = number
-      week_day       = string
-    }))
-  }))
-  default = {}
 }

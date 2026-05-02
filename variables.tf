@@ -1,3 +1,9 @@
+# Ephemeral variables and version trackers
+
+# Log Analytics backward-compat variables
+
+# AVM interface variables
+
 variable "location" {
   type        = string
   description = "Azure region where the resource should be deployed."
@@ -16,13 +22,14 @@ variable "resource_group_name" {
   nullable    = false
 }
 
-variable "kind" {
-  description = "Kind of the Managed Environment."
-  type        = string
-  default     = null
-}
-
 variable "app_logs_configuration" {
+  type = object({
+    destination = optional(string)
+    log_analytics_configuration = optional(object({
+      customer_id = optional(string)
+    }))
+  })
+  default     = null
   description = <<DESCRIPTION
 Cluster configuration which enables the log daemon to export app logs to configured destination.
 
@@ -31,16 +38,61 @@ Cluster configuration which enables the log daemon to export app logs to configu
   - `customer_id` - Log analytics customer id
 
 DESCRIPTION
-  type = object({
-    destination = optional(string)
-    log_analytics_configuration = optional(object({
-      customer_id = optional(string)
-    }))
-  })
-  default = null
+}
+
+variable "certificate_password" {
+  type        = string
+  ephemeral   = true
+  default     = null
+  description = "Certificate password for custom domain. Ephemeral — not stored in state."
+}
+
+variable "certificate_password_version" {
+  type        = number
+  default     = null
+  description = "Version tracker for `certificate_password`. Must be set when `certificate_password` is provided."
+
+  validation {
+    condition     = var.certificate_password == null || var.certificate_password_version != null
+    error_message = "When certificate_password is set, certificate_password_version must also be set."
+  }
+}
+
+variable "custom_domain_certificate_key_vault_identity" {
+  type        = string
+  default     = null
+  description = "DEPRECATED: Use `custom_domain_configuration.certificate_key_vault_properties.identity` instead. Will be removed in a future major release."
+}
+
+variable "custom_domain_certificate_key_vault_url" {
+  type        = string
+  default     = null
+  description = "DEPRECATED: Use `custom_domain_configuration.certificate_key_vault_properties.key_vault_url` instead. Will be removed in a future major release."
+}
+
+variable "custom_domain_certificate_password" {
+  ephemeral   = true
+  type        = string
+  default     = null
+  description = "DEPRECATED: Use `certificate_password` (ephemeral) + `certificate_password_version` instead. Will be removed in a future major release."
+}
+
+variable "custom_domain_certificate_value" {
+  type        = string
+  default     = null
+  description = "DEPRECATED: Use `custom_domain_configuration.certificate_value` instead. Will be removed in a future major release."
 }
 
 variable "custom_domain_configuration" {
+  type = object({
+    certificate_key_vault_properties = optional(object({
+      identity      = optional(string)
+      key_vault_url = optional(string)
+    }))
+    certificate_value = optional(any)
+    dns_suffix        = optional(string)
+  })
+  default     = null
   description = <<DESCRIPTION
 Custom domain configuration for the environment.
 
@@ -51,220 +103,26 @@ Custom domain configuration for the environment.
 - `dns_suffix` - DNS suffix for the environment domain
 
 DESCRIPTION
-  type = object({
-    certificate_key_vault_properties = optional(object({
-      identity      = optional(string)
-      key_vault_url = optional(string)
-    }))
-    certificate_value = optional(any)
-    dns_suffix        = optional(string)
-  })
-  default = null
 }
 
-variable "dapr_configuration" {
-  description = "The configuration of Dapr component."
-  type        = object({})
-  default     = null
-}
-
-variable "infrastructure_resource_group" {
-  description = <<DESCRIPTION
-Name of the platform-managed resource group created for the Managed Environment to host infrastructure resources.
-If a subnet ID is provided, this resource group will be created in the same subscription as the subnet.
-If not specified, then one will be generated automatically, in the form `ME_<app_managed_environment_name>_<resource_group>_<location>`.
-DESCRIPTION
+variable "custom_domain_dns_suffix" {
   type        = string
   default     = null
-}
-
-variable "ingress_configuration" {
-  description = <<DESCRIPTION
-Ingress configuration for the Managed Environment.
-
-- `header_count_limit` - Maximum number of headers per request allowed by the ingress. Must be at least 1. Defaults to 100.
-- `request_idle_timeout` - Duration (in minutes) before idle requests are timed out. Must be between 4 and 30 inclusive. Defaults to 4 minutes.
-- `termination_grace_period_seconds` - Time (in seconds) to allow active connections to complete on termination. Must be between 0 and 3600. Defaults to 480 seconds.
-- `workload_profile_name` - Name of the workload profile used by the ingress component.
-
-DESCRIPTION
-  type = object({
-    header_count_limit               = optional(number)
-    request_idle_timeout             = optional(number)
-    termination_grace_period_seconds = optional(number)
-    workload_profile_name            = optional(string)
-  })
-  default = null
-}
-
-variable "keda_configuration" {
-  description = "The configuration of Keda component."
-  type        = object({})
-  default     = null
-}
-
-variable "peer_authentication" {
-  description = <<DESCRIPTION
-Peer authentication settings for the Managed Environment.
-
-- `mtls` - Mutual TLS authentication settings for the Managed Environment
-  - `enabled` - Boolean indicating whether the mutual TLS authentication is enabled
-
-DESCRIPTION
-  type = object({
-    mtls = optional(object({
-      enabled = optional(bool)
-    }))
-  })
-  default = null
-}
-
-variable "peer_traffic_configuration" {
-  description = <<DESCRIPTION
-Peer traffic settings for the Managed Environment.
-
-- `encryption` - Peer traffic encryption settings for the Managed Environment
-  - `enabled` - Boolean indicating whether the peer traffic encryption is enabled
-
-DESCRIPTION
-  type = object({
-    encryption = optional(object({
-      enabled = optional(bool)
-    }))
-  })
-  default = null
-}
-
-variable "public_network_access" {
-  description = <<DESCRIPTION
-Property to allow or block all public traffic. Allowed values: `'Enabled'`, `'Disabled'`.
-
-**Note:** If `vnet_configuration.internal` is `true`, this module forces `'Disabled'` regardless of this setting.
-
-DESCRIPTION
-  type        = any
-  default     = null
-}
-
-variable "vnet_configuration" {
-  description = <<DESCRIPTION
-VNet configuration for the Managed Environment.
-
-- `docker_bridge_cidr` - CIDR notation IP range assigned to the Docker bridge network. Must not overlap with any other provided IP ranges.
-- `infrastructure_subnet_id` - Resource ID of a subnet for infrastructure components. Must not overlap with any other provided IP ranges.
-- `internal` - Boolean indicating the environment only has an internal load balancer. These environments do not have a public static IP resource. They must provide `infrastructure_subnet_id` if enabling this property.
-- `platform_reserved_cidr` - IP range in CIDR notation that can be reserved for environment infrastructure IP addresses. Must not overlap with any other provided IP ranges.
-- `platform_reserved_dns_ip` - An IP address from the IP range defined by `platform_reserved_cidr` that will be reserved for the internal DNS server.
-
-DESCRIPTION
-  type = object({
-    docker_bridge_cidr       = optional(string)
-    infrastructure_subnet_id = optional(string)
-    internal                 = optional(bool)
-    platform_reserved_cidr   = optional(string)
-    platform_reserved_dns_ip = optional(string)
-  })
-  default = null
-}
-
-variable "workload_profiles" {
-  type = list(object({
-    maximum_count         = optional(number)
-    minimum_count         = optional(number)
-    name                  = string
-    workload_profile_type = string
-  }))
-  default     = null
-  description = <<DESCRIPTION
-Workload profiles configured for the Managed Environment. This is in addition to the default Consumption profile.
-
-- `maximum_count` - (Optional) The maximum number of instances of workload profile that can be deployed in the Container App Environment. Required for Dedicated profile types.
-- `minimum_count` - (Optional) The minimum number of instances of workload profile that can be deployed in the Container App Environment. Required for Dedicated profile types.
-- `name` - (Required) The name of the workload profile.
-- `workload_profile_type` - (Required) Workload profile type for the workloads to run on. Possible values include `D4`, `D8`, `D16`, `D32`, `E4`, `E8`, `E16` and `E32`.
-
-Examples:
-
-```hcl
-  workload_profiles = [{
-    name                  = "Dedicated"
-    workload_profile_type = "D4"
-    maximum_count         = 3
-    minimum_count         = 1
-  }]
-```
-
-DESCRIPTION
-  nullable    = true
-
-  validation {
-    condition     = var.workload_profiles == null ? true : can([for wp in var.workload_profiles : regex("^[a-zA-Z][a-zA-Z0-9_-]{0,14}[a-zA-Z0-9]$", wp.name)])
-    error_message = "Invalid value for workload profile name. It must start with a letter, contain only letters, numbers, underscores, or dashes, and not end with an underscore or dash. Maximum 15 characters."
-  }
-  validation {
-    condition     = var.workload_profiles == null ? true : can([for wp in var.workload_profiles : index(["Consumption", "D4", "D8", "D16", "D32", "E4", "E8", "E16", "E32"], wp.workload_profile_type) >= 0])
-    error_message = "Invalid value for workload_profile_type. Valid options are 'Consumption', 'D4', 'D8', 'D16', 'D32', 'E4', 'E8', 'E16', 'E32'."
-  }
-}
-
-variable "zone_redundant" {
-  type        = bool
-  default     = true
-  description = "(Optional) Should the Container App Environment be created with Zone Redundancy enabled? Defaults to `true`. Changing this forces a new resource to be created."
-}
-
-# Ephemeral variables and version trackers
-
-variable "shared_key" {
-  description = <<DESCRIPTION
-Log analytics primary shared key. Ephemeral — not stored in state.
-
-The preferred mechanism is to specify `log_analytics_workspace.resource_id`, in which case this can be left as `null`.
-
-DESCRIPTION
-  type        = string
-  default     = null
-  ephemeral   = true
-}
-
-variable "shared_key_version" {
-  description = "Version tracker for `shared_key`. Must be set when `shared_key` is provided."
-  type        = number
-  default     = null
-  validation {
-    condition     = var.shared_key == null || var.shared_key_version != null
-    error_message = "When shared_key is set, shared_key_version must also be set."
-  }
-}
-
-variable "certificate_password" {
-  description = "Certificate password for custom domain. Ephemeral — not stored in state."
-  type        = string
-  default     = null
-  ephemeral   = true
-}
-
-variable "certificate_password_version" {
-  description = "Version tracker for `certificate_password`. Must be set when `certificate_password` is provided."
-  type        = number
-  default     = null
-  validation {
-    condition     = var.certificate_password == null || var.certificate_password_version != null
-    error_message = "When certificate_password is set, certificate_password_version must also be set."
-  }
+  description = "DEPRECATED: Use `custom_domain_configuration = { dns_suffix = \"...\" }` instead. Will be removed in a future major release."
 }
 
 variable "dapr_ai_connection_string" {
-  description = "Application Insights connection string used by Dapr to export Service to Service communication telemetry. Ephemeral — not stored in state."
   type        = string
-  default     = null
   ephemeral   = true
+  default     = null
+  description = "Application Insights connection string used by Dapr to export Service to Service communication telemetry. Ephemeral — not stored in state."
 }
 
 variable "dapr_ai_connection_string_version" {
-  description = "Version tracker for `dapr_ai_connection_string`. Must be set when `dapr_ai_connection_string` is provided."
   type        = number
   default     = null
+  description = "Version tracker for `dapr_ai_connection_string`. Must be set when `dapr_ai_connection_string` is provided."
+
   validation {
     condition     = var.dapr_ai_connection_string == null || var.dapr_ai_connection_string_version != null
     error_message = "When dapr_ai_connection_string is set, dapr_ai_connection_string_version must also be set."
@@ -272,45 +130,35 @@ variable "dapr_ai_connection_string_version" {
 }
 
 variable "dapr_ai_instrumentation_key" {
-  description = "Azure Monitor instrumentation key used by Dapr to export Service to Service communication telemetry. Ephemeral — not stored in state."
   type        = string
-  default     = null
   ephemeral   = true
+  default     = null
+  description = "Azure Monitor instrumentation key used by Dapr to export Service to Service communication telemetry. Ephemeral — not stored in state."
 }
 
 variable "dapr_ai_instrumentation_key_version" {
-  description = "Version tracker for `dapr_ai_instrumentation_key`. Must be set when `dapr_ai_instrumentation_key` is provided."
   type        = number
   default     = null
+  description = "Version tracker for `dapr_ai_instrumentation_key`. Must be set when `dapr_ai_instrumentation_key` is provided."
+
   validation {
     condition     = var.dapr_ai_instrumentation_key == null || var.dapr_ai_instrumentation_key_version != null
     error_message = "When dapr_ai_instrumentation_key is set, dapr_ai_instrumentation_key_version must also be set."
   }
 }
 
-# Log Analytics backward-compat variables
-
-variable "log_analytics_workspace" {
-  # wrapped as an object because: https://azure.github.io/Azure-Verified-Modules/spec/TFNFR11/
-  type = object({
-    resource_id = string
-  })
+variable "dapr_application_insights_connection_string" {
+  ephemeral   = true
+  type        = string
   default     = null
-  description = <<DESCRIPTION
-The resource ID of the Log Analytics Workspace to link this Container Apps Managed Environment to.
-
-This is the suggested mechanism to link a Log Analytics Workspace to a Container Apps Managed Environment, as it
-avoids having to pass the primary shared key directly.
-
-This requires at least `Microsoft.OperationalInsights/workspaces/sharedkeys/read` over the Log Analytics Workspace resource,
-as the key is fetched by the module (i.e. this mirrors the behaviour of the AzureRM provider).
-
-An alternative mechanism is to supply `shared_key` directly.
-
-DESCRIPTION
+  description = "DEPRECATED: Use `dapr_ai_connection_string` (ephemeral) + `dapr_ai_connection_string_version` instead. Will be removed in a future major release."
 }
 
-# AVM interface variables
+variable "dapr_configuration" {
+  type        = object({})
+  default     = null
+  description = "The configuration of Dapr component."
+}
 
 variable "diagnostic_settings" {
   type = map(object({
@@ -368,6 +216,65 @@ DESCRIPTION
   nullable    = false
 }
 
+variable "infrastructure_resource_group" {
+  type        = string
+  default     = null
+  description = <<DESCRIPTION
+Name of the platform-managed resource group created for the Managed Environment to host infrastructure resources.
+If a subnet ID is provided, this resource group will be created in the same subscription as the subnet.
+If not specified, then one will be generated automatically, in the form `ME_<app_managed_environment_name>_<resource_group>_<location>`.
+DESCRIPTION
+}
+
+variable "infrastructure_resource_group_name" {
+  type        = string
+  default     = null
+  description = "DEPRECATED: Renamed to `infrastructure_resource_group`. Will be removed in a future major release."
+}
+
+variable "infrastructure_subnet_id" {
+  type        = string
+  default     = null
+  description = "DEPRECATED: Use `vnet_configuration = { infrastructure_subnet_id = \"...\" }` instead. Will be removed in a future major release."
+}
+
+variable "ingress_configuration" {
+  type = object({
+    header_count_limit               = optional(number)
+    request_idle_timeout             = optional(number)
+    termination_grace_period_seconds = optional(number)
+    workload_profile_name            = optional(string)
+  })
+  default     = null
+  description = <<DESCRIPTION
+Ingress configuration for the Managed Environment.
+
+- `header_count_limit` - Maximum number of headers per request allowed by the ingress. Must be at least 1. Defaults to 100.
+- `request_idle_timeout` - Duration (in minutes) before idle requests are timed out. Must be between 4 and 30 inclusive. Defaults to 4 minutes.
+- `termination_grace_period_seconds` - Time (in seconds) to allow active connections to complete on termination. Must be between 0 and 3600. Defaults to 480 seconds.
+- `workload_profile_name` - Name of the workload profile used by the ingress component.
+
+DESCRIPTION
+}
+
+variable "internal_load_balancer_enabled" {
+  type        = bool
+  default     = null
+  description = "DEPRECATED: Use `vnet_configuration = { internal = true }` instead. Will be removed in a future major release."
+}
+
+variable "keda_configuration" {
+  type        = object({})
+  default     = null
+  description = "The configuration of Keda component."
+}
+
+variable "kind" {
+  type        = string
+  default     = null
+  description = "Kind of the Managed Environment."
+}
+
 variable "lock" {
   type = object({
     kind = string
@@ -385,6 +292,45 @@ DESCRIPTION
     condition     = var.lock != null ? contains(["CanNotDelete", "ReadOnly"], var.lock.kind) : true
     error_message = "Lock kind must be either `\"CanNotDelete\"` or `\"ReadOnly\"`."
   }
+}
+
+variable "log_analytics_workspace" {
+  # wrapped as an object because: https://azure.github.io/Azure-Verified-Modules/spec/TFNFR11/
+  type = object({
+    resource_id = string
+  })
+  default     = null
+  description = <<DESCRIPTION
+The resource ID of the Log Analytics Workspace to link this Container Apps Managed Environment to.
+
+This is the suggested mechanism to link a Log Analytics Workspace to a Container Apps Managed Environment, as it
+avoids having to pass the primary shared key directly.
+
+This requires at least `Microsoft.OperationalInsights/workspaces/sharedkeys/read` over the Log Analytics Workspace resource,
+as the key is fetched by the module (i.e. this mirrors the behaviour of the AzureRM provider).
+
+An alternative mechanism is to supply `shared_key` directly.
+
+DESCRIPTION
+}
+
+variable "log_analytics_workspace_customer_id" {
+  type        = string
+  default     = null
+  description = "DEPRECATED: Use `app_logs_configuration.log_analytics_configuration.customer_id`, or set `log_analytics_workspace.resource_id` to auto-fetch. Will be removed in a future major release."
+}
+
+variable "log_analytics_workspace_destination" {
+  type        = string
+  default     = null
+  description = "DEPRECATED: Use `app_logs_configuration.destination` instead. Will be removed in a future major release."
+}
+
+variable "log_analytics_workspace_primary_shared_key" {
+  ephemeral   = true
+  type        = string
+  default     = null
+  description = "DEPRECATED: Use `shared_key` (ephemeral) + `shared_key_version` instead. Will be removed in a future major release."
 }
 
 variable "managed_identities" {
@@ -406,6 +352,67 @@ variable "parent_id" {
   type        = string
   default     = null
   description = "The parent resource ID for this resource. When provided, takes precedence over `resource_group_name`."
+}
+
+variable "peer_authentication" {
+  type = object({
+    mtls = optional(object({
+      enabled = optional(bool)
+    }))
+  })
+  default     = null
+  description = <<DESCRIPTION
+Peer authentication settings for the Managed Environment.
+
+- `mtls` - Mutual TLS authentication settings for the Managed Environment
+  - `enabled` - Boolean indicating whether the mutual TLS authentication is enabled
+
+DESCRIPTION
+}
+
+variable "peer_authentication_enabled" {
+  type        = bool
+  default     = null
+  description = "DEPRECATED: Use `peer_authentication = { mtls = { enabled = true } }` instead. Will be removed in a future major release."
+}
+
+variable "peer_traffic_configuration" {
+  type = object({
+    encryption = optional(object({
+      enabled = optional(bool)
+    }))
+  })
+  default     = null
+  description = <<DESCRIPTION
+Peer traffic settings for the Managed Environment.
+
+- `encryption` - Peer traffic encryption settings for the Managed Environment
+  - `enabled` - Boolean indicating whether the peer traffic encryption is enabled
+
+DESCRIPTION
+}
+
+variable "peer_traffic_encryption_enabled" {
+  type        = bool
+  default     = null
+  description = "DEPRECATED: Use `peer_traffic_configuration = { encryption = { enabled = true } }` instead. Will be removed in a future major release."
+}
+
+variable "public_network_access" {
+  type        = any
+  default     = null
+  description = <<DESCRIPTION
+Property to allow or block all public traffic. Allowed values: `'Enabled'`, `'Disabled'`.
+
+**Note:** If `vnet_configuration.internal` is `true`, this module forces `'Disabled'` regardless of this setting.
+
+DESCRIPTION
+}
+
+variable "public_network_access_enabled" {
+  type        = bool
+  default     = null
+  description = "DEPRECATED: Use `public_network_access` (string: `\"Enabled\"` or `\"Disabled\"`) instead. Will be removed in a future major release."
 }
 
 variable "role_assignments" {
@@ -437,6 +444,29 @@ DESCRIPTION
   nullable    = false
 }
 
+variable "shared_key" {
+  type        = string
+  ephemeral   = true
+  default     = null
+  description = <<DESCRIPTION
+Log analytics primary shared key. Ephemeral — not stored in state.
+
+The preferred mechanism is to specify `log_analytics_workspace.resource_id`, in which case this can be left as `null`.
+
+DESCRIPTION
+}
+
+variable "shared_key_version" {
+  type        = number
+  default     = null
+  description = "Version tracker for `shared_key`. Must be set when `shared_key` is provided."
+
+  validation {
+    condition     = var.shared_key == null || var.shared_key_version != null
+    error_message = "When shared_key is set, shared_key_version must also be set."
+  }
+}
+
 variable "tags" {
   type        = map(string)
   default     = null
@@ -459,96 +489,85 @@ variable "timeouts" {
 DESCRIPTION
 }
 
-variable "zone_redundancy_enabled" {
-  description = "DEPRECATED: Renamed to `zone_redundant`. Will be removed in a future major release."
-  type        = bool
+variable "vnet_configuration" {
+  type = object({
+    docker_bridge_cidr       = optional(string)
+    infrastructure_subnet_id = optional(string)
+    internal                 = optional(bool)
+    platform_reserved_cidr   = optional(string)
+    platform_reserved_dns_ip = optional(string)
+  })
   default     = null
+  description = <<DESCRIPTION
+VNet configuration for the Managed Environment.
+
+- `docker_bridge_cidr` - CIDR notation IP range assigned to the Docker bridge network. Must not overlap with any other provided IP ranges.
+- `infrastructure_subnet_id` - Resource ID of a subnet for infrastructure components. Must not overlap with any other provided IP ranges.
+- `internal` - Boolean indicating the environment only has an internal load balancer. These environments do not have a public static IP resource. They must provide `infrastructure_subnet_id` if enabling this property.
+- `platform_reserved_cidr` - IP range in CIDR notation that can be reserved for environment infrastructure IP addresses. Must not overlap with any other provided IP ranges.
+- `platform_reserved_dns_ip` - An IP address from the IP range defined by `platform_reserved_cidr` that will be reserved for the internal DNS server.
+
+DESCRIPTION
 }
-variable "infrastructure_resource_group_name" {
-  description = "DEPRECATED: Renamed to `infrastructure_resource_group`. Will be removed in a future major release."
-  type        = string
-  default     = null
-}
-variable "public_network_access_enabled" {
-  description = "DEPRECATED: Use `public_network_access` (string: `\"Enabled\"` or `\"Disabled\"`) instead. Will be removed in a future major release."
-  type        = bool
-  default     = null
-}
+
 variable "workload_profile" {
-  description = "DEPRECATED: Renamed to `workload_profiles` (list). Will be removed in a future major release."
   type = set(object({
     maximum_count         = optional(number)
     minimum_count         = optional(number)
     name                  = string
     workload_profile_type = string
   }))
-  default = null
+  default     = null
+  description = "DEPRECATED: Renamed to `workload_profiles` (list). Will be removed in a future major release."
 }
-variable "internal_load_balancer_enabled" {
-  description = "DEPRECATED: Use `vnet_configuration = { internal = true }` instead. Will be removed in a future major release."
+
+variable "workload_profiles" {
+  type = list(object({
+    maximum_count         = optional(number)
+    minimum_count         = optional(number)
+    name                  = string
+    workload_profile_type = string
+  }))
+  default     = null
+  description = <<DESCRIPTION
+Workload profiles configured for the Managed Environment. This is in addition to the default Consumption profile.
+
+- `maximum_count` - (Optional) The maximum number of instances of workload profile that can be deployed in the Container App Environment. Required for Dedicated profile types.
+- `minimum_count` - (Optional) The minimum number of instances of workload profile that can be deployed in the Container App Environment. Required for Dedicated profile types.
+- `name` - (Required) The name of the workload profile.
+- `workload_profile_type` - (Required) Workload profile type for the workloads to run on. Possible values include `D4`, `D8`, `D16`, `D32`, `E4`, `E8`, `E16` and `E32`.
+
+Examples:
+
+```hcl
+  workload_profiles = [{
+    name                  = "Dedicated"
+    workload_profile_type = "D4"
+    maximum_count         = 3
+    minimum_count         = 1
+  }]
+```
+
+DESCRIPTION
+
+  validation {
+    condition     = var.workload_profiles == null ? true : can([for wp in var.workload_profiles : regex("^[a-zA-Z][a-zA-Z0-9_-]{0,14}[a-zA-Z0-9]$", wp.name)])
+    error_message = "Invalid value for workload profile name. It must start with a letter, contain only letters, numbers, underscores, or dashes, and not end with an underscore or dash. Maximum 15 characters."
+  }
+  validation {
+    condition     = var.workload_profiles == null ? true : can([for wp in var.workload_profiles : index(["Consumption", "D4", "D8", "D16", "D32", "E4", "E8", "E16", "E32"], wp.workload_profile_type) >= 0])
+    error_message = "Invalid value for workload_profile_type. Valid options are 'Consumption', 'D4', 'D8', 'D16', 'D32', 'E4', 'E8', 'E16', 'E32'."
+  }
+}
+
+variable "zone_redundancy_enabled" {
   type        = bool
   default     = null
+  description = "DEPRECATED: Renamed to `zone_redundant`. Will be removed in a future major release."
 }
-variable "infrastructure_subnet_id" {
-  description = "DEPRECATED: Use `vnet_configuration = { infrastructure_subnet_id = \"...\" }` instead. Will be removed in a future major release."
-  type        = string
-  default     = null
-}
-variable "peer_authentication_enabled" {
-  description = "DEPRECATED: Use `peer_authentication = { mtls = { enabled = true } }` instead. Will be removed in a future major release."
+
+variable "zone_redundant" {
   type        = bool
-  default     = null
-}
-variable "peer_traffic_encryption_enabled" {
-  description = "DEPRECATED: Use `peer_traffic_configuration = { encryption = { enabled = true } }` instead. Will be removed in a future major release."
-  type        = bool
-  default     = null
-}
-variable "custom_domain_dns_suffix" {
-  description = "DEPRECATED: Use `custom_domain_configuration = { dns_suffix = \"...\" }` instead. Will be removed in a future major release."
-  type        = string
-  default     = null
-}
-variable "custom_domain_certificate_key_vault_url" {
-  description = "DEPRECATED: Use `custom_domain_configuration.certificate_key_vault_properties.key_vault_url` instead. Will be removed in a future major release."
-  type        = string
-  default     = null
-}
-variable "custom_domain_certificate_key_vault_identity" {
-  description = "DEPRECATED: Use `custom_domain_configuration.certificate_key_vault_properties.identity` instead. Will be removed in a future major release."
-  type        = string
-  default     = null
-}
-variable "custom_domain_certificate_value" {
-  description = "DEPRECATED: Use `custom_domain_configuration.certificate_value` instead. Will be removed in a future major release."
-  type        = string
-  default     = null
-}
-variable "log_analytics_workspace_customer_id" {
-  description = "DEPRECATED: Use `app_logs_configuration.log_analytics_configuration.customer_id`, or set `log_analytics_workspace.resource_id` to auto-fetch. Will be removed in a future major release."
-  type        = string
-  default     = null
-}
-variable "log_analytics_workspace_destination" {
-  description = "DEPRECATED: Use `app_logs_configuration.destination` instead. Will be removed in a future major release."
-  type        = string
-  default     = null
-}
-variable "custom_domain_certificate_password" {
-  description = "DEPRECATED: Use `certificate_password` (ephemeral) + `certificate_password_version` instead. Will be removed in a future major release."
-  ephemeral   = true
-  type        = string
-  default     = null
-}
-variable "dapr_application_insights_connection_string" {
-  description = "DEPRECATED: Use `dapr_ai_connection_string` (ephemeral) + `dapr_ai_connection_string_version` instead. Will be removed in a future major release."
-  ephemeral   = true
-  type        = string
-  default     = null
-}
-variable "log_analytics_workspace_primary_shared_key" {
-  description = "DEPRECATED: Use `shared_key` (ephemeral) + `shared_key_version` instead. Will be removed in a future major release."
-  ephemeral   = true
-  type        = string
-  default     = null
+  default     = true
+  description = "(Optional) Should the Container App Environment be created with Zone Redundancy enabled? Defaults to `true`. Changing this forces a new resource to be created."
 }

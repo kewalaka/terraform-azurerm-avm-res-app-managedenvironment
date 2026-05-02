@@ -1,6 +1,6 @@
-output "resource_id" {
-  description = "The ID of the created resource."
-  value       = azapi_resource.this.id
+output "api_version" {
+  description = "The resource api version"
+  value       = try(azapi_resource.this.output.apiVersion, null)
 }
 
 output "name" {
@@ -8,9 +8,9 @@ output "name" {
   value       = azapi_resource.this.name
 }
 
-output "api_version" {
-  description = "The resource api version"
-  value       = try(azapi_resource.this.output.apiVersion, null)
+output "resource_id" {
+  description = "The ID of the created resource."
+  value       = azapi_resource.this.id
 }
 
 output "system_data" {
@@ -22,4 +22,3 @@ output "type" {
   description = "The resource type"
   value       = try(azapi_resource.this.output.type, null)
 }
-

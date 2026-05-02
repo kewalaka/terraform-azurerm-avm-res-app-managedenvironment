@@ -52,9 +52,9 @@ resource "azurerm_application_insights" "this" {
 module "managedenvironment" {
   source = "../../"
 
-  location                                    = azurerm_resource_group.this.location
-  name                                        = module.naming.container_app_environment.name_unique
-  resource_group_name                         = azurerm_resource_group.this.name
+  location                  = azurerm_resource_group.this.location
+  name                      = module.naming.container_app_environment.name_unique
+  resource_group_name       = azurerm_resource_group.this.name
   dapr_ai_connection_string = azurerm_application_insights.this.connection_string
   dapr_components = {
     "my-dapr-component" = {

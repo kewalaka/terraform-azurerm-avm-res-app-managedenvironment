@@ -69,12 +69,12 @@ resource "azurerm_subnet" "this" {
 module "managedenvironment" {
   source = "../../"
 
-  location                 = azurerm_resource_group.this.location
-  name                     = module.naming.container_app_environment.name_unique
-  resource_group_name      = azurerm_resource_group.this.name
+  location                = azurerm_resource_group.this.location
+  name                    = module.naming.container_app_environment.name_unique
+  resource_group_name     = azurerm_resource_group.this.name
+  log_analytics_workspace = { resource_id = azurerm_log_analytics_workspace.this.id }
   vnet_configuration = {
     infrastructure_subnet_id = azurerm_subnet.this.id
   }
-  log_analytics_workspace = { resource_id = azurerm_log_analytics_workspace.this.id }
   zone_redundant = true
 }

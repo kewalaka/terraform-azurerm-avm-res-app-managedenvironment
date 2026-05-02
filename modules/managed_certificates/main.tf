@@ -1,14 +1,13 @@
 resource "azapi_resource" "this" {
-  type      = "Microsoft.App/managedEnvironments/managedCertificates@2025-07-01"
+  location  = var.location
   name      = var.name
   parent_id = var.parent_id
-  location  = var.location
+  type      = "Microsoft.App/managedEnvironments/managedCertificates@2025-07-01"
   body      = local.resource_body
   replace_triggers_refs = [
     "properties.subjectName",
     "properties.domainControlValidation",
   ]
-  tags      = var.tags
   response_export_values = [
     "apiVersion",
     "properties.error",
@@ -16,4 +15,5 @@ resource "azapi_resource" "this" {
     "systemData",
     "type"
   ]
+  tags = var.tags
 }

@@ -1,13 +1,3 @@
-output "resource_id" {
-  description = "The ID of the created resource."
-  value       = azapi_resource.this.id
-}
-
-output "name" {
-  description = "The name of the created resource."
-  value       = azapi_resource.this.name
-}
-
 output "api_version" {
   description = "The resource api version"
   value       = try(azapi_resource.this.output.apiVersion, null)
@@ -18,9 +8,14 @@ output "error" {
   value       = try(azapi_resource.this.output.properties.error, null)
 }
 
-output "validation_token" {
-  description = "A TXT token used for DNS TXT domain control validation when issuing this type of managed certificates."
-  value       = try(azapi_resource.this.output.properties.validationToken, null)
+output "name" {
+  description = "The name of the created resource."
+  value       = azapi_resource.this.name
+}
+
+output "resource_id" {
+  description = "The ID of the created resource."
+  value       = azapi_resource.this.id
 }
 
 output "system_data" {
@@ -33,3 +28,7 @@ output "type" {
   value       = try(azapi_resource.this.output.type, null)
 }
 
+output "validation_token" {
+  description = "A TXT token used for DNS TXT domain control validation when issuing this type of managed certificates."
+  value       = try(azapi_resource.this.output.properties.validationToken, null)
+}

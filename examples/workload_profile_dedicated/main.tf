@@ -101,11 +101,7 @@ module "managedenvironment" {
     }
   }
   infrastructure_resource_group = "rg-managed-${module.naming.container_app_environment.name_unique}"
-  vnet_configuration = {
-    infrastructure_subnet_id = azurerm_subnet.this.id
-    internal                 = true
-  }
-  log_analytics_workspace = { resource_id = azurerm_log_analytics_workspace.this.id }
+  log_analytics_workspace       = { resource_id = azurerm_log_analytics_workspace.this.id }
   managed_identities = {
     system_assigned            = true
     user_assigned_resource_ids = [azurerm_user_assigned_identity.this.id]
@@ -122,6 +118,10 @@ module "managedenvironment" {
       location            = azurerm_resource_group.this.location
       name                = "mycontainerappstorage"
     }
+  }
+  vnet_configuration = {
+    infrastructure_subnet_id = azurerm_subnet.this.id
+    internal                 = true
   }
   zone_redundant = true
 }

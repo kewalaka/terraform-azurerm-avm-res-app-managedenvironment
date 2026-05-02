@@ -24,32 +24,8 @@ data "azapi_resource" "customer_id" {
 # Effective locals that merge new and deprecated variable inputs.
 # New variable always takes priority over its deprecated equivalent.
 locals {
-  effective_zone_redundant = var.zone_redundant != null ? var.zone_redundant : var.zone_redundancy_enabled
-
-  effective_infrastructure_resource_group = var.infrastructure_resource_group != null ? var.infrastructure_resource_group : var.infrastructure_resource_group_name
-
-  effective_vnet_configuration = var.vnet_configuration != null ? var.vnet_configuration : (
-    var.internal_load_balancer_enabled != null || var.infrastructure_subnet_id != null ? {
-      docker_bridge_cidr       = null
-      infrastructure_subnet_id = var.infrastructure_subnet_id
-      internal                 = var.internal_load_balancer_enabled
-      platform_reserved_cidr   = null
-      platform_reserved_dns_ip = null
-    } : null
-  )
-
-  effective_peer_authentication = var.peer_authentication != null ? var.peer_authentication : (
-    var.peer_authentication_enabled != null ? {
-      mtls = { enabled = var.peer_authentication_enabled }
-    } : null
-  )
-
-  effective_peer_traffic_configuration = var.peer_traffic_configuration != null ? var.peer_traffic_configuration : (
-    var.peer_traffic_encryption_enabled != null ? {
-      encryption = { enabled = var.peer_traffic_encryption_enabled }
-    } : null
-  )
-
+  # These locals are automatically treated as ephemeral since they depend on ephemeral input variables.
+  effective_certificate_password = var.certificate_password != null ? var.certificate_password : var.custom_domain_certificate_password
   effective_custom_domain_configuration = var.custom_domain_configuration != null ? var.custom_domain_configuration : (
     var.custom_domain_dns_suffix != null ||
     var.custom_domain_certificate_value != null ||
@@ -65,24 +41,39 @@ locals {
       )
     } : null
   )
-
-  # These locals are automatically treated as ephemeral since they depend on ephemeral input variables.
-  effective_certificate_password      = var.certificate_password != null ? var.certificate_password : var.custom_domain_certificate_password
-  effective_dapr_ai_connection_string = var.dapr_ai_connection_string != null ? var.dapr_ai_connection_string : var.dapr_application_insights_connection_string
+  effective_dapr_ai_connection_string     = var.dapr_ai_connection_string != null ? var.dapr_ai_connection_string : var.dapr_application_insights_connection_string
+  effective_infrastructure_resource_group = var.infrastructure_resource_group != null ? var.infrastructure_resource_group : var.infrastructure_resource_group_name
+  effective_peer_authentication = var.peer_authentication != null ? var.peer_authentication : (
+    var.peer_authentication_enabled != null ? {
+      mtls = { enabled = var.peer_authentication_enabled }
+    } : null
+  )
+  effective_peer_traffic_configuration = var.peer_traffic_configuration != null ? var.peer_traffic_configuration : (
+    var.peer_traffic_encryption_enabled != null ? {
+      encryption = { enabled = var.peer_traffic_encryption_enabled }
+    } : null
+  )
+  effective_vnet_configuration = var.vnet_configuration != null ? var.vnet_configuration : (
+    var.internal_load_balancer_enabled != null || var.infrastructure_subnet_id != null ? {
+      docker_bridge_cidr       = null
+      infrastructure_subnet_id = var.infrastructure_subnet_id
+      internal                 = var.internal_load_balancer_enabled
+      platform_reserved_cidr   = null
+      platform_reserved_dns_ip = null
+    } : null
+  )
+  effective_zone_redundant = var.zone_redundant != null ? var.zone_redundant : var.zone_redundancy_enabled
 }
 
 locals {
-  # Effective Log Analytics shared key — use explicit ephemeral var if provided, then deprecated
-  # fallback, then auto-fetch from log_analytics_workspace resource ID.
-  log_analytics_key = (
-    var.shared_key != null ? var.shared_key : (
-      var.log_analytics_workspace_primary_shared_key != null ? var.log_analytics_workspace_primary_shared_key : (
-        length(ephemeral.azapi_resource_action.shared_keys) > 0 ?
-        ephemeral.azapi_resource_action.shared_keys[0].output.primarySharedKey : null
-      )
-    )
+  # Deprecated var.workload_profile (set) fallback — tolist() ordering is not guaranteed for sets.
+  # var.workload_profiles (list) takes priority when both are set.
+  _workload_profiles_input = var.workload_profiles != null ? var.workload_profiles : (
+    var.workload_profile != null ? tolist(var.workload_profile) : null
   )
-
+  # Resource ID maps for outputs
+  certificate_resource_ids    = { for ck, cv in module.certificates : ck => { id = cv.resource_id } }
+  dapr_component_resource_ids = { for dk, dv in module.dapr_components : dk => { id = dv.resource_id } }
   # Effective app logs configuration — merges var.app_logs_configuration with backward-compat
   # logic from log_analytics_workspace (resource ID-based) and deprecated flat variables.
   effective_app_logs_configuration = (
@@ -102,7 +93,6 @@ locals {
       )
     )
   )
-
   # Azure rejects publicNetworkAccess=Enabled when the environment has an internal load balancer.
   # Also accepts the deprecated public_network_access_enabled bool as a fallback.
   effective_public_network_access = (
@@ -112,43 +102,22 @@ locals {
       )
     )
   )
-
+  # Effective Log Analytics shared key — use explicit ephemeral var if provided, then deprecated
+  # fallback, then auto-fetch from log_analytics_workspace resource ID.
+  log_analytics_key = (
+    var.shared_key != null ? var.shared_key : (
+      var.log_analytics_workspace_primary_shared_key != null ? var.log_analytics_workspace_primary_shared_key : (
+        length(ephemeral.azapi_resource_action.shared_keys) > 0 ?
+        ephemeral.azapi_resource_action.shared_keys[0].output.primarySharedKey : null
+      )
+    )
+  )
+  managed_certificate_resource_ids = { for mck, mcv in module.managed_certificates : mck => { id = mcv.resource_id } }
   parent_id = var.parent_id != null ? var.parent_id : (
     var.resource_group_name != null ?
     "/subscriptions/${data.azapi_client_config.current.subscription_id}/resourceGroups/${var.resource_group_name}" :
     null
   )
-
-  # Deprecated var.workload_profile (set) fallback — tolist() ordering is not guaranteed for sets.
-  # var.workload_profiles (list) takes priority when both are set.
-  _workload_profiles_input = var.workload_profiles != null ? var.workload_profiles : (
-    var.workload_profile != null ? tolist(var.workload_profile) : null
-  )
-
-  # Workload profiles idempotency fix: when dedicated profiles are specified, always add a Consumption
-  # profile to avoid drift on subsequent runs (Azure creates one implicitly).
-  workload_profiles = (
-    local._workload_profiles_input != null && length(local._workload_profiles_input) > 0 ? concat(
-      [
-        for wp in local._workload_profiles_input : {
-          name                = wp.name
-          workloadProfileType = wp.workload_profile_type
-          minimumCount        = wp.minimum_count
-          maximumCount        = wp.maximum_count
-        }
-        if wp.workload_profile_type != "Consumption"
-      ],
-      [
-        {
-          name                = "Consumption"
-          workloadProfileType = "Consumption"
-          minimumCount        = null
-          maximumCount        = null
-        }
-      ]
-    ) : null
-  )
-
   resource_body = {
     kind = var.kind
     properties = {
@@ -197,14 +166,31 @@ locals {
       zoneRedundant    = local.effective_zone_redundant
     }
   }
-
-  # Resource ID maps for outputs
-  certificate_resource_ids         = { for ck, cv in module.certificates : ck => { id = cv.resource_id } }
-  dapr_component_resource_ids      = { for dk, dv in module.dapr_components : dk => { id = dv.resource_id } }
-  managed_certificate_resource_ids = { for mck, mcv in module.managed_certificates : mck => { id = mcv.resource_id } }
-  storage_resource_ids             = { for sk, sv in module.storages : sk => { id = sv.resource_id } }
-
   role_definition_resource_substring = "/providers/Microsoft.Authorization/roleDefinitions"
+  storage_resource_ids               = { for sk, sv in module.storages : sk => { id = sv.resource_id } }
+  # Workload profiles idempotency fix: when dedicated profiles are specified, always add a Consumption
+  # profile to avoid drift on subsequent runs (Azure creates one implicitly).
+  workload_profiles = (
+    local._workload_profiles_input != null && length(local._workload_profiles_input) > 0 ? concat(
+      [
+        for wp in local._workload_profiles_input : {
+          name                = wp.name
+          workloadProfileType = wp.workload_profile_type
+          minimumCount        = wp.minimum_count
+          maximumCount        = wp.maximum_count
+        }
+        if wp.workload_profile_type != "Consumption"
+      ],
+      [
+        {
+          name                = "Consumption"
+          workloadProfileType = "Consumption"
+          minimumCount        = null
+          maximumCount        = null
+        }
+      ]
+    ) : null
+  )
 }
 
 locals {
