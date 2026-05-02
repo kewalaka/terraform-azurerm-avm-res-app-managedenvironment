@@ -1,12 +1,13 @@
 module "storages" {
-  source              = "./modules/storages"
-  for_each            = var.storages
+  source   = "./modules/storages"
+  for_each = var.storages
+
+  location            = each.value.location
+  name                = each.value.name
+  parent_id           = azapi_resource.this_environment.id
   account_key         = each.value.account_key
   account_key_version = each.value.account_key_version
   azure_file          = each.value.azure_file
   enable_telemetry    = each.value.enable_telemetry
-  location            = each.value.location
-  name                = each.value.name
   nfs_azure_file      = each.value.nfs_azure_file
-  parent_id           = azapi_resource.this_environment.id
 }

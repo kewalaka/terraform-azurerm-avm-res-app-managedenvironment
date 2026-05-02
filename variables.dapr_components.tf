@@ -1,4 +1,28 @@
 variable "dapr_components" {
+  type = map(object({
+    component_type          = optional(string)
+    dapr_components_version = optional(string)
+    enable_telemetry        = optional(bool)
+    ignore_errors           = optional(bool)
+    init_timeout            = optional(string)
+    location                = string
+    metadata = optional(list(object({
+      name       = optional(string)
+      secret_ref = optional(string)
+      value      = optional(string)
+    })))
+    name                   = string
+    scopes                 = optional(list(string))
+    secret_store_component = optional(string)
+    secrets = optional(list(object({
+      identity      = optional(string)
+      key_vault_url = optional(string)
+      name          = optional(string)
+      value         = optional(string)
+    })))
+    secrets_version = optional(number)
+  }))
+  default     = {}
   description = <<DESCRIPTION
 Map of instances for the submodule with the following attributes:
 
@@ -38,28 +62,4 @@ Component version
 **secrets_version**
 Version tracker for secrets. Must be set when secrets is provided.
 DESCRIPTION
-  type = map(object({
-    component_type          = optional(string)
-    dapr_components_version = optional(string)
-    enable_telemetry        = optional(bool)
-    ignore_errors           = optional(bool)
-    init_timeout            = optional(string)
-    location                = string
-    metadata = optional(list(object({
-      name       = optional(string)
-      secret_ref = optional(string)
-      value      = optional(string)
-    })))
-    name                   = string
-    scopes                 = optional(list(string))
-    secret_store_component = optional(string)
-    secrets = optional(list(object({
-      identity      = optional(string)
-      key_vault_url = optional(string)
-      name          = optional(string)
-      value         = optional(string)
-    })))
-    secrets_version = optional(number)
-  }))
-  default = {}
 }

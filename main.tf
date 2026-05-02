@@ -1,9 +1,12 @@
 resource "azapi_resource" "this_environment" {
-  location  = var.location
-  name      = var.name
-  parent_id = local.parent_id
-  type      = "Microsoft.App/managedEnvironments@2025-07-01"
-  body      = local.resource_body
+  location       = var.location
+  name           = var.name
+  parent_id      = local.parent_id
+  type           = "Microsoft.App/managedEnvironments@2025-07-01"
+  body           = local.resource_body
+  create_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  delete_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  read_headers   = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
   replace_triggers_refs = [
     "kind",
     "properties.vnetConfiguration.infrastructureSubnetId",
@@ -11,9 +14,6 @@ resource "azapi_resource" "this_environment" {
     "properties.zoneRedundant",
     "properties.workloadProfiles[*].workloadProfileType",
   ]
-  create_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
-  delete_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
-  read_headers   = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
   response_export_values = [
     "apiVersion",
     "identity",

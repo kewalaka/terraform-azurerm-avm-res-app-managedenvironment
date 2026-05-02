@@ -1,4 +1,24 @@
 variable "java_components" {
+  type = map(object({
+    component_type = string
+    configurations = optional(list(object({
+      property_name = optional(string)
+      value         = optional(string)
+    })))
+    enable_telemetry = optional(bool)
+    ingress          = optional(object({}))
+    location         = string
+    name             = string
+    scale = optional(object({
+      max_replicas = optional(number)
+      min_replicas = optional(number)
+    }))
+    service_binds = optional(list(object({
+      name       = optional(string)
+      service_id = optional(string)
+    })))
+  }))
+  default     = {}
   description = <<DESCRIPTION
 Map of instances for the submodule with the following attributes:
 
@@ -32,24 +52,4 @@ Java Component Ingress configurations.
 **service_binds**
 List of Java Components that are bound to the Java component
 DESCRIPTION
-  type = map(object({
-    component_type = string
-    configurations = optional(list(object({
-      property_name = optional(string)
-      value         = optional(string)
-    })))
-    enable_telemetry = optional(bool)
-    ingress          = optional(object({}))
-    location         = string
-    name             = string
-    scale = optional(object({
-      max_replicas = optional(number)
-      min_replicas = optional(number)
-    }))
-    service_binds = optional(list(object({
-      name       = optional(string)
-      service_id = optional(string)
-    })))
-  }))
-  default = {}
 }

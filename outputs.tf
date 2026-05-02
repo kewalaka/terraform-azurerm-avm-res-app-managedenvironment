@@ -84,4 +84,3 @@ output "storage_resource_ids" {
   description = "A map of storage shares connected to this environment. The map key is the supplied input to var.storages. The map value is the azurerm-formatted version of the entire storage shares resource."
   value       = local.storage_resource_ids
 }
-

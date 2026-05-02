@@ -32,4 +32,3 @@ output "deprecation_warnings" {
     var.log_analytics_workspace_destination != null ? "DEPRECATED: 'log_analytics_workspace_destination' has been replaced by 'app_logs_configuration.destination'. Please update your configuration." : null,
   ])
 }
-

@@ -92,7 +92,7 @@ locals {
         log_analytics_configuration = {
           customer_id = try(data.azapi_resource.customer_id[0].output.properties.customerId, null)
         }
-      } : (
+        } : (
         var.log_analytics_workspace_customer_id != null || var.log_analytics_workspace_destination != null ? {
           destination = coalesce(var.log_analytics_workspace_destination, "log-analytics")
           log_analytics_configuration = {
@@ -199,10 +199,10 @@ locals {
   }
 
   # Resource ID maps for outputs
-  certificate_resource_ids = { for ck, cv in module.certificates : ck => { id = cv.resource_id } }
-  dapr_component_resource_ids = { for dk, dv in module.dapr_components : dk => { id = dv.resource_id } }
+  certificate_resource_ids         = { for ck, cv in module.certificates : ck => { id = cv.resource_id } }
+  dapr_component_resource_ids      = { for dk, dv in module.dapr_components : dk => { id = dv.resource_id } }
   managed_certificate_resource_ids = { for mck, mcv in module.managed_certificates : mck => { id = mcv.resource_id } }
-  storage_resource_ids = { for sk, sv in module.storages : sk => { id = sv.resource_id } }
+  storage_resource_ids             = { for sk, sv in module.storages : sk => { id = sv.resource_id } }
 
   role_definition_resource_substring = "/providers/Microsoft.Authorization/roleDefinitions"
 }

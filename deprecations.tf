@@ -17,124 +17,31 @@
 
 # ── Simple renames ──────────────────────────────────────────────────────────────
 
-variable "zone_redundancy_enabled" {
-  description = "DEPRECATED: Renamed to `zone_redundant`. Will be removed in a future major release."
-  type        = bool
-  default     = null
-}
 
-variable "infrastructure_resource_group_name" {
-  description = "DEPRECATED: Renamed to `infrastructure_resource_group`. Will be removed in a future major release."
-  type        = string
-  default     = null
-}
 
 # ── Type changes ────────────────────────────────────────────────────────────────
 
-variable "public_network_access_enabled" {
-  description = "DEPRECATED: Use `public_network_access` (string: `\"Enabled\"` or `\"Disabled\"`) instead. Will be removed in a future major release."
-  type        = bool
-  default     = null
-}
 
-variable "workload_profile" {
-  description = "DEPRECATED: Renamed to `workload_profiles` (list). Will be removed in a future major release."
-  type = set(object({
-    maximum_count         = optional(number)
-    minimum_count         = optional(number)
-    name                  = string
-    workload_profile_type = string
-  }))
-  default = null
-}
 
 # ── Flat → nested migrations ─────────────────────────────────────────────────
 
-variable "internal_load_balancer_enabled" {
-  description = "DEPRECATED: Use `vnet_configuration = { internal = true }` instead. Will be removed in a future major release."
-  type        = bool
-  default     = null
-}
 
-variable "infrastructure_subnet_id" {
-  description = "DEPRECATED: Use `vnet_configuration = { infrastructure_subnet_id = \"...\" }` instead. Will be removed in a future major release."
-  type        = string
-  default     = null
-}
 
-variable "peer_authentication_enabled" {
-  description = "DEPRECATED: Use `peer_authentication = { mtls = { enabled = true } }` instead. Will be removed in a future major release."
-  type        = bool
-  default     = null
-}
 
-variable "peer_traffic_encryption_enabled" {
-  description = "DEPRECATED: Use `peer_traffic_configuration = { encryption = { enabled = true } }` instead. Will be removed in a future major release."
-  type        = bool
-  default     = null
-}
 
-variable "custom_domain_dns_suffix" {
-  description = "DEPRECATED: Use `custom_domain_configuration = { dns_suffix = \"...\" }` instead. Will be removed in a future major release."
-  type        = string
-  default     = null
-}
 
-variable "custom_domain_certificate_key_vault_url" {
-  description = "DEPRECATED: Use `custom_domain_configuration.certificate_key_vault_properties.key_vault_url` instead. Will be removed in a future major release."
-  type        = string
-  default     = null
-}
 
-variable "custom_domain_certificate_key_vault_identity" {
-  description = "DEPRECATED: Use `custom_domain_configuration.certificate_key_vault_properties.identity` instead. Will be removed in a future major release."
-  type        = string
-  default     = null
-}
 
-variable "custom_domain_certificate_value" {
-  description = "DEPRECATED: Use `custom_domain_configuration.certificate_value` instead. Will be removed in a future major release."
-  type        = string
-  default     = null
-}
 
 # ── Log analytics ───────────────────────────────────────────────────────────────
 
-variable "log_analytics_workspace_customer_id" {
-  description = "DEPRECATED: Use `app_logs_configuration.log_analytics_configuration.customer_id`, or set `log_analytics_workspace.resource_id` to auto-fetch. Will be removed in a future major release."
-  type        = string
-  default     = null
-}
 
-variable "log_analytics_workspace_destination" {
-  description = "DEPRECATED: Use `app_logs_configuration.destination` instead. Will be removed in a future major release."
-  type        = string
-  default     = null
-}
 
 # ── Ephemeral deprecated variables ─────────────────────────────────────────────
 # Check blocks cannot reference ephemeral values. These fall back silently.
 
-variable "custom_domain_certificate_password" {
-  description = "DEPRECATED: Use `certificate_password` (ephemeral) + `certificate_password_version` instead. Will be removed in a future major release."
-  ephemeral   = true
-  type        = string
-  default     = null
-}
 
-variable "dapr_application_insights_connection_string" {
-  description = "DEPRECATED: Use `dapr_ai_connection_string` (ephemeral) + `dapr_ai_connection_string_version` instead. Will be removed in a future major release."
-  ephemeral   = true
-  type        = string
-  default     = null
-}
 
-variable "log_analytics_workspace_primary_shared_key" {
-  description = "DEPRECATED: Use `shared_key` (ephemeral) + `shared_key_version` instead. Will be removed in a future major release."
-  ephemeral   = true
-  type        = string
-  default     = null
-}
 
 # ── Check blocks (non-ephemeral deprecated variables only) ──────────────────────
 

@@ -1,4 +1,19 @@
 variable "dot_net_components" {
+  type = map(object({
+    component_type = optional(any)
+    configurations = optional(list(object({
+      property_name = optional(string)
+      value         = optional(string)
+    })))
+    enable_telemetry = optional(bool)
+    location         = string
+    name             = string
+    service_binds = optional(list(object({
+      name       = optional(string)
+      service_id = optional(string)
+    })))
+  }))
+  default     = {}
   description = <<DESCRIPTION
 Map of instances for the submodule with the following attributes:
 
@@ -20,19 +35,4 @@ The name of the resource.
 **location**
 The location of the resource.
 DESCRIPTION
-  type = map(object({
-    component_type = optional(any)
-    configurations = optional(list(object({
-      property_name = optional(string)
-      value         = optional(string)
-    })))
-    enable_telemetry = optional(bool)
-    location         = string
-    name             = string
-    service_binds = optional(list(object({
-      name       = optional(string)
-      service_id = optional(string)
-    })))
-  }))
-  default = {}
 }

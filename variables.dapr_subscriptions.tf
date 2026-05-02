@@ -1,4 +1,27 @@
 variable "dapr_subscriptions" {
+  type = map(object({
+    bulk_subscribe = optional(object({
+      enabled               = optional(bool)
+      max_await_duration_ms = optional(number)
+      max_messages_count    = optional(number)
+    }))
+    dead_letter_topic = optional(string)
+    enable_telemetry  = optional(bool)
+    location          = string
+    metadata          = optional(map(string))
+    name              = string
+    pubsub_name       = optional(string)
+    routes = optional(object({
+      default = optional(string)
+      rules = optional(list(object({
+        match = optional(string)
+        path  = optional(string)
+      })))
+    }))
+    scopes = optional(list(string))
+    topic  = optional(string)
+  }))
+  default     = {}
   description = <<DESCRIPTION
 Map of instances for the submodule with the following attributes:
 
@@ -41,27 +64,4 @@ Subscription routes
 **scopes**
 Application scopes to restrict the subscription to specific apps.
 DESCRIPTION
-  type = map(object({
-    bulk_subscribe = optional(object({
-      enabled               = optional(bool)
-      max_await_duration_ms = optional(number)
-      max_messages_count    = optional(number)
-    }))
-    dead_letter_topic = optional(string)
-    enable_telemetry  = optional(bool)
-    location          = string
-    metadata          = optional(map(string))
-    name              = string
-    pubsub_name       = optional(string)
-    routes = optional(object({
-      default = optional(string)
-      rules = optional(list(object({
-        match = optional(string)
-        path  = optional(string)
-      })))
-    }))
-    scopes = optional(list(string))
-    topic  = optional(string)
-  }))
-  default = {}
 }

@@ -1,4 +1,19 @@
 variable "certificates" {
+  type = map(object({
+    certificate_key_vault_properties = optional(object({
+      identity      = optional(string)
+      key_vault_url = optional(string)
+    }))
+    enable_telemetry = optional(bool)
+    location         = string
+    name             = string
+    password         = optional(string)
+    password_version = optional(number)
+    tags             = optional(map(string))
+    value            = optional(any)
+    value_version    = optional(number)
+  }))
+  default     = {}
   description = <<DESCRIPTION
 Map of instances for the submodule with the following attributes:
 
@@ -32,19 +47,4 @@ Properties for a certificate stored in a Key Vault.
 - `identity` - Resource ID of a managed identity to authenticate with Azure Key Vault, or System to use a system-assigned identity.
 - `key_vault_url` - URL pointing to the Azure Key Vault secret that holds the certificate.
 DESCRIPTION
-  type = map(object({
-    certificate_key_vault_properties = optional(object({
-      identity      = optional(string)
-      key_vault_url = optional(string)
-    }))
-    enable_telemetry = optional(bool)
-    location         = string
-    name             = string
-    password         = optional(string)
-    password_version = optional(number)
-    tags             = optional(map(string))
-    value            = optional(any)
-    value_version    = optional(number)
-  }))
-  default = {}
 }

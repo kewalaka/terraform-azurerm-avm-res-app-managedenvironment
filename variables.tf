@@ -142,8 +142,8 @@ Property to allow or block all public traffic. Allowed values: `'Enabled'`, `'Di
 **Note:** If `vnet_configuration.internal` is `true`, this module forces `'Disabled'` regardless of this setting.
 
 DESCRIPTION
-  type    = any
-  default = null
+  type        = any
+  default     = null
 }
 
 variable "vnet_configuration" {
@@ -195,7 +195,7 @@ Examples:
 ```
 
 DESCRIPTION
-  nullable = true
+  nullable    = true
 
   validation {
     condition     = var.workload_profiles == null ? true : can([for wp in var.workload_profiles : regex("^[a-zA-Z][a-zA-Z0-9_-]{0,14}[a-zA-Z0-9]$", wp.name)])
@@ -222,9 +222,9 @@ Log analytics primary shared key. Ephemeral — not stored in state.
 The preferred mechanism is to specify `log_analytics_workspace.resource_id`, in which case this can be left as `null`.
 
 DESCRIPTION
-  type      = string
-  default   = null
-  ephemeral = true
+  type        = string
+  default     = null
+  ephemeral   = true
 }
 
 variable "shared_key_version" {
@@ -459,3 +459,96 @@ variable "timeouts" {
 DESCRIPTION
 }
 
+variable "zone_redundancy_enabled" {
+  description = "DEPRECATED: Renamed to `zone_redundant`. Will be removed in a future major release."
+  type        = bool
+  default     = null
+}
+variable "infrastructure_resource_group_name" {
+  description = "DEPRECATED: Renamed to `infrastructure_resource_group`. Will be removed in a future major release."
+  type        = string
+  default     = null
+}
+variable "public_network_access_enabled" {
+  description = "DEPRECATED: Use `public_network_access` (string: `\"Enabled\"` or `\"Disabled\"`) instead. Will be removed in a future major release."
+  type        = bool
+  default     = null
+}
+variable "workload_profile" {
+  description = "DEPRECATED: Renamed to `workload_profiles` (list). Will be removed in a future major release."
+  type = set(object({
+    maximum_count         = optional(number)
+    minimum_count         = optional(number)
+    name                  = string
+    workload_profile_type = string
+  }))
+  default = null
+}
+variable "internal_load_balancer_enabled" {
+  description = "DEPRECATED: Use `vnet_configuration = { internal = true }` instead. Will be removed in a future major release."
+  type        = bool
+  default     = null
+}
+variable "infrastructure_subnet_id" {
+  description = "DEPRECATED: Use `vnet_configuration = { infrastructure_subnet_id = \"...\" }` instead. Will be removed in a future major release."
+  type        = string
+  default     = null
+}
+variable "peer_authentication_enabled" {
+  description = "DEPRECATED: Use `peer_authentication = { mtls = { enabled = true } }` instead. Will be removed in a future major release."
+  type        = bool
+  default     = null
+}
+variable "peer_traffic_encryption_enabled" {
+  description = "DEPRECATED: Use `peer_traffic_configuration = { encryption = { enabled = true } }` instead. Will be removed in a future major release."
+  type        = bool
+  default     = null
+}
+variable "custom_domain_dns_suffix" {
+  description = "DEPRECATED: Use `custom_domain_configuration = { dns_suffix = \"...\" }` instead. Will be removed in a future major release."
+  type        = string
+  default     = null
+}
+variable "custom_domain_certificate_key_vault_url" {
+  description = "DEPRECATED: Use `custom_domain_configuration.certificate_key_vault_properties.key_vault_url` instead. Will be removed in a future major release."
+  type        = string
+  default     = null
+}
+variable "custom_domain_certificate_key_vault_identity" {
+  description = "DEPRECATED: Use `custom_domain_configuration.certificate_key_vault_properties.identity` instead. Will be removed in a future major release."
+  type        = string
+  default     = null
+}
+variable "custom_domain_certificate_value" {
+  description = "DEPRECATED: Use `custom_domain_configuration.certificate_value` instead. Will be removed in a future major release."
+  type        = string
+  default     = null
+}
+variable "log_analytics_workspace_customer_id" {
+  description = "DEPRECATED: Use `app_logs_configuration.log_analytics_configuration.customer_id`, or set `log_analytics_workspace.resource_id` to auto-fetch. Will be removed in a future major release."
+  type        = string
+  default     = null
+}
+variable "log_analytics_workspace_destination" {
+  description = "DEPRECATED: Use `app_logs_configuration.destination` instead. Will be removed in a future major release."
+  type        = string
+  default     = null
+}
+variable "custom_domain_certificate_password" {
+  description = "DEPRECATED: Use `certificate_password` (ephemeral) + `certificate_password_version` instead. Will be removed in a future major release."
+  ephemeral   = true
+  type        = string
+  default     = null
+}
+variable "dapr_application_insights_connection_string" {
+  description = "DEPRECATED: Use `dapr_ai_connection_string` (ephemeral) + `dapr_ai_connection_string_version` instead. Will be removed in a future major release."
+  ephemeral   = true
+  type        = string
+  default     = null
+}
+variable "log_analytics_workspace_primary_shared_key" {
+  description = "DEPRECATED: Use `shared_key` (ephemeral) + `shared_key_version` instead. Will be removed in a future major release."
+  ephemeral   = true
+  type        = string
+  default     = null
+}

@@ -1,4 +1,27 @@
 variable "storages" {
+  type = map(object({
+    account_key         = optional(string)
+    account_key_version = optional(number)
+    azure_file = optional(object({
+      access_mode = optional(any)
+      account_key = optional(string)
+      account_key_vault_properties = optional(object({
+        identity      = optional(string)
+        key_vault_url = optional(string)
+      }))
+      account_name = optional(string)
+      share_name   = optional(string)
+    }))
+    enable_telemetry = optional(bool)
+    location         = string
+    name             = string
+    nfs_azure_file = optional(object({
+      access_mode = optional(any)
+      server      = optional(string)
+      share_name  = optional(string)
+    }))
+  }))
+  default     = {}
   description = <<DESCRIPTION
 Map of instances for the submodule with the following attributes:
 
@@ -37,27 +60,4 @@ The name of the resource.
 **location**
 The location of the resource.
 DESCRIPTION
-  type = map(object({
-    account_key         = optional(string)
-    account_key_version = optional(number)
-    azure_file = optional(object({
-      access_mode = optional(any)
-      account_key = optional(string)
-      account_key_vault_properties = optional(object({
-        identity      = optional(string)
-        key_vault_url = optional(string)
-      }))
-      account_name = optional(string)
-      share_name   = optional(string)
-    }))
-    enable_telemetry = optional(bool)
-    location         = string
-    name             = string
-    nfs_azure_file = optional(object({
-      access_mode = optional(any)
-      server      = optional(string)
-      share_name  = optional(string)
-    }))
-  }))
-  default = {}
 }
