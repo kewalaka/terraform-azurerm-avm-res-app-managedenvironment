@@ -15,19 +15,11 @@ resource "azapi_resource" "this_environment" {
     "properties.workloadProfiles[*].workloadProfileType",
   ]
   response_export_values = [
-    "apiVersion",
     "identity",
-    "identity.principalId",
-    "identity.tenantId",
     "properties.customDomainConfiguration",
-    "properties.customDomainConfiguration.customDomainVerificationId",
-    "properties.customDomainConfiguration.expirationDate",
-    "properties.customDomainConfiguration.subjectName",
-    "properties.customDomainConfiguration.thumbprint",
     "properties.daprAIInstrumentationKey",
     "properties.daprConfiguration.version",
     "properties.defaultDomain",
-    "properties.deploymentErrors",
     "properties.eventStreamEndpoint",
     "properties.infrastructureResourceGroup",
     "properties.kedaConfiguration.version",
@@ -37,8 +29,6 @@ resource "azapi_resource" "this_environment" {
     "properties.vnetConfiguration.dockerBridgeCidr",
     "properties.vnetConfiguration.platformReservedCidr",
     "properties.vnetConfiguration.platformReservedDnsIP",
-    "systemData",
-    "type",
   ]
   schema_validation_enabled = true
   sensitive_body = {

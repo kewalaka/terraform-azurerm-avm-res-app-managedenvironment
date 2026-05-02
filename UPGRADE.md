@@ -1,10 +1,12 @@
 # Upgrade Guide
 
-This document describes breaking changes when upgrading this module from the `azurerm`-style API to the `azapi`-native API.
+This document describes breaking changes when upgrading this module between versions.
 
 ---
 
-## Variable Renames
+## 0.4.0 to 0.5.0 (Unreleased)
+
+### Variable Renames
 
 The following root-module variables have been renamed or restructured:
 
@@ -28,42 +30,14 @@ The following root-module variables have been renamed or restructured:
 | `log_analytics_workspace_destination` | `app_logs_configuration.destination` | Moved into `app_logs_configuration` object |
 | `log_analytics_workspace_primary_shared_key` | `shared_key` (ephemeral) + `shared_key_version` | Now ephemeral; version tracker required |
 
----
+### Breaking Schema Changes
 
-## Submodule Renames
-
-All child resource submodules have been renamed from singular to plural, and updated to use `azapi`:
-
-| Old Module Path | New Module Path |
-|---|---|
-| `modules/certificate` | `modules/certificates` |
-| `modules/dapr_component` | `modules/dapr_components` |
-| `modules/managed_certificate` | `modules/managed_certificates` |
-| `modules/storage` | `modules/storages` |
-
----
-
-## New Submodules
-
-The following child resource submodules are now available:
-
-| Module | API Version | Notes |
-|---|---|---|
-| `modules/dapr_subscriptions` | `2025-10-02-preview` | Preview API |
-| `modules/maintenance_configurations` | `2025-07-01` | |
-| `modules/dot_net_components` | `2025-10-02-preview` | Preview API |
-| `modules/java_components` | `2025-07-01` | |
-| `modules/http_route_configs` | `2025-07-01` | |
-
----
-
-## Breaking Schema Changes
-
-### `storages`
+#### `storages`
 
 The `storages` variable schema has changed from a flat structure to a nested one matching the azapi resource body:
 
 **Before:**
+
 ```hcl
 storages = {
   "my-storage" = {
@@ -76,6 +50,7 @@ storages = {
 ```
 
 **After:**
+
 ```hcl
 storages = {
   "my-storage" = {
@@ -91,11 +66,12 @@ storages = {
 }
 ```
 
-### `dapr_components`
+#### `dapr_components`
 
 The `version` key has been renamed to `dapr_components_version`. The `secret` block (singular, set) has been replaced by `secrets` (list).
 
 **Before:**
+
 ```hcl
 dapr_components = {
   "my-component" = {
@@ -110,6 +86,7 @@ dapr_components = {
 ```
 
 **After:**
+
 ```hcl
 dapr_components = {
   "my-component" = {
@@ -125,11 +102,12 @@ dapr_components = {
 }
 ```
 
-### `certificates`
+#### `certificates`
 
 The `certificates` variable has been restructured to support the azapi resource body pattern with ephemeral `password` and `value` fields:
 
 **Before (via `var.certificates` inline schema):**
+
 ```hcl
 certificates = {
   "my-cert" = {
@@ -142,6 +120,7 @@ certificates = {
 ```
 
 **After:**
+
 ```hcl
 certificates = {
   "my-cert" = {
@@ -159,9 +138,10 @@ certificates = {
 }
 ```
 
-### `managed_certificates`
+#### `managed_certificates`
 
 **Before:**
+
 ```hcl
 managed_certificates = {
   "my-cert" = {
@@ -172,6 +152,7 @@ managed_certificates = {
 ```
 
 **After:**
+
 ```hcl
 managed_certificates = {
   "my-cert" = {
@@ -183,9 +164,7 @@ managed_certificates = {
 }
 ```
 
----
-
-## Ephemeral Variables and Version Trackers
+### Ephemeral Variables and Version Trackers
 
 Several variables are now marked as `ephemeral = true`, meaning their values are not stored in Terraform state. Each ephemeral variable requires a corresponding `_version` variable that must be incremented when the secret value changes (to trigger re-application).
 
@@ -196,9 +175,7 @@ Several variables are now marked as `ephemeral = true`, meaning their values are
 | `dapr_ai_connection_string` | `dapr_ai_connection_string_version` |
 | `dapr_ai_instrumentation_key` | `dapr_ai_instrumentation_key_version` |
 
----
-
-## Log Analytics Backward Compatibility
+### Log Analytics Backward Compatibility
 
 The `log_analytics_workspace` variable (resource ID-based) is preserved for backward compatibility. It continues to auto-fetch the primary shared key and customer ID.
 
@@ -208,62 +185,14 @@ The following variables are removed; use `app_logs_configuration` instead:
 - `log_analytics_workspace_destination` → `app_logs_configuration.destination`
 - `log_analytics_workspace_primary_shared_key` → `shared_key` (ephemeral)
 
----
-
-## Provider Version Changes
+### Provider Version Changes
 
 | Provider | Before | After |
 |---|---|---|
 | `azapi` | `~> 2.6` | `~> 2.7` |
 
----
-
-## Submodule Interface Changes
-
-### `enable_telemetry` removed from per-instance variable types
-
-`enable_telemetry` has been removed from every child resource variable type (e.g. `dapr_components`, `storages`, `certificates`, etc.). Telemetry is now controlled at the root module level via `var.enable_telemetry`, which is passed to all submodules automatically.
-
-**Before:**
-```hcl
-dapr_components = {
-  "my-component" = {
-    name             = "my-component"
-    enable_telemetry = false  # per-instance — no longer supported
-    ...
-  }
-}
-```
-
-**After:** remove `enable_telemetry` from all per-instance maps. To disable telemetry, set it on the root module:
-```hcl
-module "managed_environment" {
-  ...
-  enable_telemetry = false
-}
-```
-
-### `location` removed from non-location-bearing submodule variable types
-
-`location` has been removed from the variable types for submodules whose child resources do not have a location property in the Azure API: `dapr_components`, `dapr_subscriptions`, `dot_net_components`, `http_route_configs`, `java_components`, `maintenance_configurations`, and `storages`.
-
-`location` is **retained** in `certificates` and `managed_certificates` because those resources accept a location in the API body.
-
-**Before:**
-```hcl
-dapr_components = {
-  "my-component" = {
-    name     = "my-component"
-    location = "eastus"  # no longer accepted for these submodules
-    ...
-  }
-}
-```
-
-**After:** remove `location` from instances of the above 7 submodule types.
-
----
-
-## API Version Change
+### API Version Change
 
 The main resource API version has been upgraded from `2025-02-02-preview` to `2025-07-01` (GA).
+
+---
